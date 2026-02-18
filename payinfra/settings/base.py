@@ -11,10 +11,14 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+"""ADDED CONFIG"""
+env = environ.Env()
+environ.Env.read_env('.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -37,9 +41,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # apps
+    'accounts',
+    'merchants',
+    'transactions',
+    'analytics',
+
+    # packages
+    "debug_toolbar",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', #added
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -47,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'payinfra.middlewares.pagination.SmartAutoPaginationMiddleware' #added
 ]
 
 ROOT_URLCONF = 'payinfra.urls'
@@ -72,12 +88,12 @@ WSGI_APPLICATION = 'payinfra.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # Password validation
@@ -120,3 +136,126 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# -------------------------
+# Custom Settings
+# -------------------------
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated'
+    ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        
+    ],
+}
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env("DB_NAME"),
+        'USER': env("DB_USER"),
+        'PASSWORD': env("DB_PASSWORD"),
+        'HOST': env("DB_HOST"),
+        'PORT': env("DB_PORT"),
+    }
+}
+
+MAILGUN_BASE_URL= env("MAILGUN_BASE_URL")
+MAILGUN_DOMAIN=env("MAILGUN_DOMAIN")
+MAILGUN_API_KEY=env("MAILGUN_API_KEY")
+EMAIL_BACKEND = env('EMAIL_BACKEND')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+EMAIL_TIMEOUT = 300
+SUPPORT_EMAIL = "support@payinfra.co"
+EMAIL_PREFIX = "iGospel"
+
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "PAy Infra Terminal API",
+    "DESCRIPTION": "API documentation",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
+    "POSTPROCESSING_HOOKS": [
+        "payinfra.schema_hooks.count_endpoints",
+        "payinfra.schema_hooks.add_app_tags",
+        ],
+    "ENUM_ADD_EXPLICIT_BLANK_NULL_CHOICE": False,
+    "DISABLE_ERRORS_AND_WARNINGS": True,
+    "TAGS": [
+            {
+                "name": "Accounts",
+                "description": "Management of user accounts, authentication, and profile settings."
+            },
+            {
+                "name": "Analytics",
+                "description": "Tracking and analysis of blog posts, user engagement, and platform metrics."
+            },
+            {
+                "name": "Merchants",
+                "description": "Management of music system entities such as artists, albums, and tracks."
+            },
+            {
+                "name": "Transactions",
+                "description": "Handling payments, purchases, and support interactions."
+            }
+        ]
+}
+
+LOGS_DIR = BASE_DIR / 'logs'
+LOGS_DIR.mkdir(exist_ok=True, parents=True)
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': LOGS_DIR / 'django.log',
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'payinfra': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    }
+}
+

@@ -36,6 +36,8 @@ class AccountUtils:
     def generate_profile_id():
         return str(random.randint(100_000_000, 999_999_999))
     
+    def generate_merchant_id():
+        return str(random.randint(100_000_000, 999_999_999))
     
     def generate_otp():
         return str(random.randint(1000, 9999))
