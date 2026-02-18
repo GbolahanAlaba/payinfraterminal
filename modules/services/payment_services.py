@@ -6,9 +6,7 @@ from typing import Optional
 from django.core.exceptions import ImproperlyConfigured
 from django.db import transaction as db_transaction
 
-from modules.payments.providers import PAYMENT_PROVIDERS
-from wallet.models import WalletTransaction
-from account.models import User, Profile
+from connectors.payments.providers import PAYMENT_PROVIDERS
 
 log = logging.getLogger("my_logger")
 
@@ -101,20 +99,6 @@ class PaymentService:
         log.info(f"Payment initialized with data: {init_data}")
 
         cleaned_data = provider.clean_init_data(init_data)
-
-        # ---- Create pending wallet transaction ----
-        profile = Profile.objects.get(profile_id=profile_id)
-        creator_currency_wallet = profile.user.wallet.currency_wallets.get(currency__code="NGN")
-        platform_currency_wallet = User.objects.get(is_superuser=True).wallet.currency_wallets.get(currency__code="NGN") 
-        
-        WalletTransaction.transaction_data(
-            creator_currency_wallet=creator_currency_wallet,
-            platform_currency_wallet=platform_currency_wallet,
-            donation_amount=Decimal(net_amount),
-            description=f"Donation from {email}",
-            reference=reference,
-            status="pending"
-        )
 
         return {
             "status": "success",

@@ -15,7 +15,6 @@ from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
 from django.conf import settings
 from modules.gateways.mailgun import MailgunGateway
-from support.models import TechPartner
 
 env = environ.Env()
 
@@ -60,12 +59,8 @@ class PaymentCharges:
         Paystack charges 1.5% + ₦100 per transaction for amounts above ₦2500,
         and a flat ₦100 for amounts ₦2500 and below.
         """
-        provider = (
-            TechPartner.objects
-            .filter(service_type="payment", is_active=True).first()
-        )
-        if provider and provider.provider.lower() == "paystack":
-            print(provider.provider)
+        provider = "paystack"
+        if provider == "paystack":
             percentage_charge = Decimal(0.015) * amount
             extra_charge = Decimal(100.0) if amount > Decimal(2500) else Decimal(0.0)
             total_charge = percentage_charge + extra_charge
@@ -78,7 +73,7 @@ class ServiceProvidersEnvironment:
 
     def get_nomba_environment_details():
           
-        environment = TechPartner.objects.filter(provider="nomba", is_active=True).first()
+        environment = "nombe"
         log.info(f"Nomba ENV: {environment}")
         
         if environment.environment == "live":
@@ -106,11 +101,7 @@ class ServiceProvidersEnvironment:
         """
 
         # Fetch active Paystack environment from DB
-        environment = (
-            TechPartner.objects
-            .filter(provider="paystack", is_active=True)
-            .first()
-        )
+        environment = "paystack"
 
         if environment:
             log.info(f"Active Paystack environment from DB: {environment.environment}")
@@ -137,8 +128,8 @@ class ServiceProviders:
         based on the configured settings.SMS_PROVIDER.
         """
         # sms_provider = getattr(settings, "SMS_PROVIDER", "termii").lower()
-        email_provider = TechPartner.objects.filter(service_type="email", is_active=True).first()
-        if email_provider.provider.lower() == "mailgun":
+        email_provider = "mailgun"
+        if email_provider == "mailgun":
             return MailgunGateway()
         # elif sms_provider == "twilio":
         #     return TwilioSMSService(
