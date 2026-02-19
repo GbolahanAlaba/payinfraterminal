@@ -92,9 +92,7 @@ class UserAdmin(BaseUserAdmin):
             return []
         return super(UserAdmin, self).get_inline_instances(request, obj)
 
-# -------------------------
-# AccountType Admin
-# -------------------------
+
 @admin.register(AccountType)
 class AccountTypeAdmin(admin.ModelAdmin):
     list_display = ('name', 'is_active', 'created_at', 'updated_at')

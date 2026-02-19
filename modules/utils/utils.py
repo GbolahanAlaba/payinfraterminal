@@ -73,12 +73,22 @@ class PaymentCharges:
 
 class ServiceProvidersEnvironment:
 
-    def get_nomba_environment_details():
-          
-        environment = "nombe"
+    def get_provider(self, provider: str, environment: str):
+        """
+        Factory function that returns the environment details for a given provider.
+        Currently supports 'paystack' and 'nomba'.
+        """
+        return provider, environment
+
+        
+
+    def get_nomba_environment_details(self):
+        
+        provider = self.get_provider()
+        environment = provider[1]
         log.info(f"Nomba ENV: {environment}")
         
-        if environment.environment == "live":
+        if environment == "live":
             return {
                 "URL": settings.LIVE_NOMBA_BASE_URL,
                 "NOMBA_ACCOUNT_ID": settings.NOMBA_ACCOUNT_ID,
@@ -86,7 +96,7 @@ class ServiceProvidersEnvironment:
                 "NOMBA_CLIENT_SECRET": settings.LIVE_NOMBA_CLIENT_SECRET
             }
         else:  # Default to sandbox
-            # log.info(f"Nomba ENV: {environment}")
+            log.info(f"Nomba ENV: {environment}")
             return {
                 "URL": settings.TEST_NOMBA_BASE_URL,
                 "NOMBA_ACCOUNT_ID": settings.NOMBA_ACCOUNT_ID,
@@ -95,7 +105,7 @@ class ServiceProvidersEnvironment:
             }
 
             
-    def get_paystack_environment_details():
+    def get_paystack_environment_details(self):
         """
         Return Paystack environment details (URL, secret key) dynamically.
         Uses the database `ThirdPartyEnvironment` to determine live/test mode.
@@ -103,11 +113,12 @@ class ServiceProvidersEnvironment:
         """
 
         # Fetch active Paystack environment from DB
-        environment = "paystack"
+        provider = "paystack"
+        environment = "live"
 
-        if environment:
-            log.info(f"Active Paystack environment from DB: {environment.environment}")
-            if environment.environment.lower() == "live":
+        if provider == "paystack":
+            log.info(f"Active Paystack environment from DB: {environment}")
+            if environment.lower() == "live":
                 log.info("Using LIVE Paystack environment.")
                 secret_key = settings.LIVE_PAYSTACK_SECRET_KEY
             else:

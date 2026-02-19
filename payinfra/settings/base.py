@@ -141,6 +141,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # -------------------------
 # Custom Settings
 # -------------------------
+AUTH_USER_MODEL = 'accounts.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -179,7 +180,7 @@ EMAIL_PREFIX = "iGospel"
 
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "PAy Infra Terminal API",
+    "TITLE": "Pay Infra Terminal API",
     "DESCRIPTION": "API documentation",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
