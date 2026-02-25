@@ -1,12 +1,14 @@
-# serializers.py
+
+import email
 import random
+from attr import attrs
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User, Profile, OTP
 from merchants.models import Merchant
-from modules.utils.emails import send_verify_email
+from modules.utils.emails import OnboardingEmailTasks
 
 
 
@@ -41,7 +43,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             purpose="email"
         )
 
-        send_verify_email(user, otp_code)
+        OnboardingEmailTasks.send_verify_email(user, otp_code)
 
         return user
 
@@ -78,6 +80,55 @@ class LoginSerializer(serializers.Serializer):
             }
         }
 
+class VerifyRegistrationOTPSerializer(serializers.Serializer):
+    email = serializers.CharField(max_length=255)
+    purpose = serializers.CharField(max_length=255)
+    otp = serializers.CharField(max_length=6)
+
+    def validate(self, attrs):
+        email = attrs.get("email")
+        purpose = attrs.get("purpose")
+        otp_code = attrs.get("otp")
+
+        if not email or not purpose or not otp_code:
+            raise serializers.ValidationError({"detail": "Email, purpose, and OTP are required"})
+        
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User not found")
+
+        try:
+            otp = OTP.objects.filter(
+                user=user,
+                code=otp_code,
+                purpose=purpose,
+                is_used=False
+            ).latest("created_at")
+        except OTP.DoesNotExist:
+            raise serializers.ValidationError({"detail": "Invalid OTP"})
+
+        if otp.is_expired():
+            raise serializers.ValidationError({"detail": "OTP expired"})
+
+        attrs["user"] = user
+        attrs["otp"] = otp
+        return attrs
+
+    def save(self):
+        user = self.validated_data["user"]
+        otp = self.validated_data["otp"]
+
+        user.is_approved = True
+        user.is_active = True
+        user.save()
+
+        otp.is_used = True
+        otp.save()
+
+        OnboardingEmailTasks.send_verification_confirmation(user)
+        return user
+    
 class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
@@ -97,7 +148,7 @@ class ForgotPasswordSerializer(serializers.Serializer):
             purpose="password"
         )
 
-        # TODO: Send OTP via email
+        OnboardingEmailTasks.send_otp_email(user, otp_code, purpose="password")
 
         return {"message": "OTP sent to email"}
 

@@ -6,7 +6,8 @@ from .serializers import (
     RegisterSerializer,
     LoginSerializer,
     ForgotPasswordSerializer,
-    ResetPasswordSerializer
+    ResetPasswordSerializer,
+    VerifyRegistrationOTPSerializer
 )
 
 
@@ -38,7 +39,24 @@ class LoginView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
+class VerifyRegistrationOTPView(APIView):
+    permission_classes = []
+    """
+    API endpoint to verify registration OTP.
+    """
+
+    def post(self, request):
+        serializer = VerifyRegistrationOTPSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response(
+                {"message": "Email verified successfully. Your account is now active."},
+                status=status.HTTP_200_OK
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 class ForgotPasswordView(APIView):
+    permission_classes = []
 
     def post(self, request):
         serializer = ForgotPasswordSerializer(data=request.data)
@@ -50,6 +68,7 @@ class ForgotPasswordView(APIView):
     
 
 class ResetPasswordView(APIView):
+    permission_classes = []
 
     def post(self, request):
         serializer = ResetPasswordSerializer(data=request.data)
