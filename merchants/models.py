@@ -9,8 +9,7 @@ from accounts.models import User
 
 class Merchant(models.Model):
     MERCHANT_TYPE_CHOICES = [
-        ("individual", "Individual"),
-        ("sole_proprietor", "Sole Proprietor"),
+        ("sole proprietor", "Sole Proprietor"),
         ("llc", "Limited Liability Company"),
         ("corporation", "Corporation"),
     ]
@@ -21,7 +20,7 @@ class Merchant(models.Model):
     business_name = models.CharField(max_length=255)
     business_email = models.EmailField(blank=True, null=True)
     business_phone = models.CharField(max_length=20, blank=True, null=True)
-    merchant_type = models.CharField(max_length=20, choices=MERCHANT_TYPE_CHOICES, default="individual")
+    merchant_type = models.CharField(max_length=20, choices=MERCHANT_TYPE_CHOICES, default="sole proprietor")
     website = models.URLField(blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     country = models.CharField(max_length=100, blank=True, null=True)

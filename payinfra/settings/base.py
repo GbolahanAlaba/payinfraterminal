@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     # apps
     'accounts',
     'merchants',
+    'notifications',
     'transactions',
     'analytics',
 

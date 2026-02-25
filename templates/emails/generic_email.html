@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ email_subject }}</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #FFFFFF; /* White main background */
+    }
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #FFFFFF;
+      padding: 20px;
+      color: #111111;
+    }
+    .logo-section {
+      text-align: center;
+      margin-bottom: 10px;
+      background-color: #000000; /* Black background */
+      padding: 15px 0;
+    }
+    .logo-section img {
+      max-width: 150px;
+    }
+    h2 {
+      font-size: 20px;
+      margin-bottom: 8px;
+      color: #111111;
+    }
+    p {
+      font-size: 15px;
+      line-height: 1.5;
+      margin: 0 0 8px;
+      color: #111111;
+    }
+    a {
+      color: #EA5B29; /* Red accent from logo */
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .button {
+      display: inline-block;
+      background-color: #EA5B29; /* Red button */
+      color: #FFFFFF;
+      padding: 10px 18px;
+      margin: 10px 0;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .social-icons {
+      text-align: center;
+      margin: 10px 0;
+      background-color: #FFFFFF; /* Black background */
+      padding: 10px 0;
+    }
+    .social-icons a img {
+      width: 24px;
+      margin: 0 4px;
+      background-color: #000000;;
+      padding: 0;
+      border-radius: 0;
+    }
+    .footer {
+      text-align: center;
+      background-color: #000000; /* Black footer */
+      color: #FFFFFF; /* All text white */
+      padding: 12px;
+      margin-top: 18px;
+      font-size: 13px;
+    }
+    .footer p, .footer a {
+      color: #FFFFFF !important; /* Force white for all text and links */
+      text-decoration: none;
+    }
+    .unsubscribe {
+      margin: 15px 0;
+      font-size: 13px;
+      color: #666666;
+    }
+    @media (max-width: 600px) {
+      .email-container {
+        padding: 15px;
+      }
+      h2 {
+        font-size: 18px;
+      }
+      .footer {
+        font-size: 12px;
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="email-container">
+
+  <!-- Logo on black background -->
+  <div class="logo-section">
+    <img src="https://bucket-xyp3f3.s3.us-west-2.amazonaws.com/django-summernote/2025-12-18/02aafcc4-8822-4953-a140-9b6e695699d1.png" alt="iGospel Logo">
+  </div>
+
+  <!-- Email body content -->
+  <div>
+    {{ email_body|safe }}
+  </div>
+
+  <!-- Social icons on black background -->
+  <div class="social-icons">
+    <a href="https://web.facebook.com/igospelmediaconnect"><img src="https://img.icons8.com/ios-filled/50/ffffff/facebook-new.png" alt="Facebook"></a>
+    <a href="https://x.com/igospelmedia"><img src="https://img.icons8.com/ios-filled/50/ffffff/x.png" alt="X"></a>
+    <a href="https://www.linkedin.com/company/igospelmedia"><img src="https://img.icons8.com/ios-filled/50/ffffff/linkedin.png" alt="LinkedIn"></a>
+    <a href="https://www.instagram.com/igospelmedia"><img src="https://img.icons8.com/ios-filled/50/ffffff/instagram-new.png" alt="Instagram"></a>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>Get rewarded by <a href="#">referring us</a></p>
+    <p><a href="#">Trouble seeing this email? View it as a page</a></p>
+    <p>iGospel Media Connect © 2026, All rights reserved.</p>
+    <p>Lagos State, Nigeria.</p>
+    <p><a href="https://www.igospel.com.ng">www.igospel.com.ng</a></p>
+  </div>
+
+</div>
+
+</body>
+</html>

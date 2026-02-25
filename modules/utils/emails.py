@@ -37,22 +37,24 @@ def contact_us_email_autoresponder(message, email, name):
 
 @shared_task
 def send_verify_email(user, otp):
-    subject = "Verify Your Email Address - Welcome to iGospel"
+    subject = "Verify Your Email Address - Welcome to PayInfra Terminal!"
 
     body = (
-        f"Dear {user.first_name},<br><br>"
-        "Welcome to <b>iGospel</b> — we're truly glad to have you with us!<br><br>"
-        "To complete your registration and secure your account, please verify your email address "
+        f"Dear {user.first_name or 'Valued Partner'},<br><br>"
+        "Welcome to <b>[Your Payment Infra Name]</b> — your infrastructure layer for reliable, "
+        "intelligent, and seamless payment orchestration.<br><br>"
+        "To complete your registration and activate your account, please verify your email address "
         "using the One-Time Password (OTP) below:<br><br>"
         f"<div style='font-size:22px; font-weight:bold; letter-spacing:3px;'>{otp}</div><br>"
-        "This OTP is valid for <b>10 minutes</b>. Please do not share this code with anyone for security reasons.<br><br>"
-        "Verifying your email helps us ensure the safety of your account and gives you full access to "
-        "our faith-filled content, inspiring messages, and community features.<br><br>"
-        "If you did not create an account with iGospel, please ignore this email — no action is required.<br><br>"
-        "We're excited to walk this journey of faith with you.<br><br>"
-        "With blessings,<br>"
-        "<b>The iGospel Team</b><br>"
-        "<i>Spreading the Gospel through digital media</i>"
+        "This OTP is valid for <b>10 minutes</b>. For security reasons, please do not share this code with anyone.<br><br>"
+        "Email verification helps us protect your account and ensures secure access to your dashboard, "
+        "transaction monitoring tools, failover configurations, and performance analytics.<br><br>"
+        "If you did not initiate this registration, please ignore this email. "
+        "Your account will not be activated without verification.<br><br>"
+        "We look forward to powering your payment reliability.<br><br>"
+        "Best regards,<br>"
+        "<b>The [Your Payment Infra Name] Team</b><br>"
+        "<i>Resilient Infrastructure for Modern Payments</i>"
     )
 
     service = NotificationService()
@@ -68,23 +70,23 @@ def send_verify_email(user, otp):
 
 @shared_task
 def send_email_verification_confirmation(user):
-    subject = "Your iGospel Account Is Now Active 🎉"
+    subject = "Account Activated - Complete Your KYC Verification"
 
     body = (
-        f"Dear {user.first_name},<br><br>"
-        "We're delighted to let you know that your email address has been successfully verified and "
-        "your <b>iGospel account is now fully activated</b>.<br><br>"
-        "You now have full access to inspiring messages, faith-building blog posts, sermons, and "
-        "uplifting content designed to encourage and strengthen your walk with God.<br><br>"
-        "At iGospel, our mission is to spread the Gospel through digital media and build a community "
-        "where believers can grow, connect, and be blessed daily.<br><br>"
-        "You can log in anytime and start exploring content created to uplift your spirit and "
-        "draw you closer to God.<br><br>"
-        "If you ever need help or have questions, our team is always happy to support you.<br><br>"
-        "Thank you for joining us on this mission of faith and impact.<br><br>"
-        "With blessings,<br>"
-        "<b>The iGospel Team</b><br>"
-        "<i>Spreading the Gospel through digital media</i>"
+        f"Dear {user.first_name or 'Valued Partner'},<br><br>"
+        "Your email has been successfully verified and your "
+        "<b>[Your Payment Infra Name] account is now active</b>.<br><br>"
+        "To unlock full access to the platform and begin integrating your payment providers, "
+        "please log in to your dashboard and proceed with the <b>KYC verification process</b>.<br><br>"
+        "KYC verification is required to ensure compliance, secure infrastructure access, "
+        "and safe transaction orchestration across connected gateways.<br><br>"
+        "Once your verification is completed and approved, you will be able to configure "
+        "payment routing, enable failover logic, and monitor transactions in real time.<br><br>"
+        "If you need any assistance during verification or integration, our team is available to support you.<br><br>"
+        "We look forward to powering your payment reliability.<br><br>"
+        "Best regards,<br>"
+        "<b>The [Your Payment Infra Name] Team</b><br>"
+        "<i>Resilient Infrastructure for Modern Payments</i>"
     )
 
     service = NotificationService()
