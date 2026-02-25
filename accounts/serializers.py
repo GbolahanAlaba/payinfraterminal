@@ -10,7 +10,6 @@ from modules.utils.emails import send_verify_email
 
 
 
-
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=6)
 
