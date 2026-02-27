@@ -47,8 +47,8 @@ INSTALLED_APPS = [
 
     # apps
     'accounts',
+    'communications',
     'merchants',
-    'notifications',
     'transactions',
     'analytics',
 
@@ -202,6 +202,10 @@ SPECTACULAR_SETTINGS = {
             {
                 "name": "Accounts",
                 "description": "Management of user accounts, authentication, and profile settings."
+            },
+            {
+                "name": "Communications",
+                "description": "Management of user communications such as newsletters, notifications, and contact forms."
             },
             {
                 "name": "Analytics",

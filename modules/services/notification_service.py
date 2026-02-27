@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.core.mail import EmailMultiAlternatives
-from notifications.models import Notification
+from communications.models import Notification
 from modules.interfaces.notification import BaseNotification
 from modules.utils.utils import util
 
