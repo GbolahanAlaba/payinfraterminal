@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-*j3_%akl)2982c5e_j!c*&$xp^2%7__7@!44e-r((*zye@1a53
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["https://payinfraterminal.onrender.com"]
 
 
 # Application definition
