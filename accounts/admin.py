@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, Profile, AccountType
+from .models import User, Profile, AccountType, OTP
 from merchants.models import Merchant, KYCDocument
 
 
@@ -98,3 +98,39 @@ class AccountTypeAdmin(admin.ModelAdmin):
     list_display = ('name', 'is_active', 'created_at', 'updated_at')
     list_filter = ('is_active',)
     search_fields = ('name',)
+
+
+@admin.register(OTP)
+class OTPAdmin(admin.ModelAdmin):
+    list_display = (
+        "code",
+        "user",
+        "purpose",
+        "is_used",
+        "created_at",
+        "expired_status",
+    )
+
+    list_filter = (
+        "purpose",
+        "is_used",
+        "created_at",
+    )
+
+    search_fields = (
+        "code",
+        "user__email",
+    )
+
+    readonly_fields = (
+        "id",
+        "created_at",
+    )
+
+    ordering = ("-created_at",)
+
+    def expired_status(self, obj):
+        return obj.is_expired()
+
+    expired_status.boolean = True
+    expired_status.short_description = "Expired"
