@@ -20,7 +20,7 @@ class MerchantAccountKey(models.Model):
     )
 
     account_id = models.CharField(max_length=255, blank=True, null=True)
-    merchant_api_key = models.CharField(
+    secret_key = models.CharField(
         max_length=255,
         unique=True,
         blank=True,

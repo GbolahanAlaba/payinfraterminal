@@ -7,6 +7,7 @@ from .user import LowercaseEmailField, User, UserStatus
 from .account import AccountType
 from .profile import Profile, Gender
 from .otp import OTP, VerificationPurpose
+from .mfa import MFADevice, MFAType, MFAStatus
 
 
 __all__ = [
@@ -18,4 +19,7 @@ __all__ = [
     'Gender',
     'OTP',
     'VerificationPurpose',
+    'MFADevice',
+    'MFAType',
+    'MFAStatus',
 ]

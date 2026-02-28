@@ -7,10 +7,13 @@ from .user import UserAdmin
 from .profile import ProfileInline
 from .account import AccountTypeAdmin
 from .otp import OTPAdmin
+from .mfa import MFAAdmin, MFAInline
 
 __all__ = [
     'UserAdmin',
     'ProfileInline',
     'AccountTypeAdmin',
     'OTPAdmin',
+    'MFAAdmin',
+    'MFAInline',
 ]

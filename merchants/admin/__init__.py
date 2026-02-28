@@ -7,6 +7,7 @@ from .merchant import MerchantInline, MerchantAdmin
 from .account_key import MerchantAccountKeyAdmin, MerchantAccountKeyInline
 from .api_key import MerchantAPIKeyAdmin, MerchantAPIKeyInline
 from .kyc_document import KYCDocumentAdmin, KYCDocumentInline
+# from .rate_limit import RateLimitAdmin, RateLimitInline
 
 __all__ = [
     "MerchantInline",
@@ -17,4 +18,6 @@ __all__ = [
     "MerchantAPIKeyInline",
     "KYCDocumentAdmin",
     "KYCDocumentInline",
+    # "RateLimitAdmin",
+    # "RateLimitInline",
 ]

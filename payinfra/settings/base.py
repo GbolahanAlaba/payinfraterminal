@@ -47,6 +47,8 @@ INSTALLED_APPS = [
 
     # apps
     'accounts',
+    'api',
+    'billing',
     'communications',
     'merchants',
     'transactions',
@@ -202,6 +204,14 @@ SPECTACULAR_SETTINGS = {
             {
                 "name": "Accounts",
                 "description": "Management of user accounts, authentication, and profile settings."
+            },
+            {
+                "name": "API",
+                "description": "Management of client APIs."
+            },
+            {
+                "name": "Billing",
+                "description": "Management of merchants' billings, subscriptions."
             },
             {
                 "name": "Communications",
