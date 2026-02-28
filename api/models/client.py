@@ -1,10 +1,12 @@
 import uuid
 import secrets
 from django.db import models
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.hashers import make_password, check_password
+from cryptography.fernet import Fernet
 from merchants.models import Merchant
 
+fernet = Fernet(settings.SECRET_ENCRYPTION_KEY)
 
 class APIClientStatus(models.TextChoices):
     ACTIVE = "active", "Active"
@@ -24,7 +26,7 @@ class APIClient(models.Model):
     merchant = models.ForeignKey(Merchant, on_delete=models.CASCADE, related_name="api_clients")
     client_name = models.CharField(max_length=255)
     client_id = models.CharField(max_length=64, unique=True, editable=False)
-    client_secret = models.CharField(max_length=128, editable=False)  # hashed
+    client_secret = models.CharField(max_length=128, editable=False)
     environment = models.CharField(max_length=20, choices=Environment.choices, default=Environment.LIVE)
     status = models.CharField(max_length=20, choices=APIClientStatus.choices, default=APIClientStatus.ACTIVE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -39,14 +41,34 @@ class APIClient(models.Model):
         return f"{self.client_name} ({self.merchant.business_name})"
 
     def generate_credentials(self):
-        """Generates a new client_id and client_secret (hashed)"""
-        prefix = "pit"  # PayInfraTerminal prefix
+        prefix = "pit"
         self.client_id = f"{prefix}_{self.environment}_{secrets.token_hex(8)}"
-        raw_secret = secrets.token_urlsafe(32)
-        self.client_secret = make_password(raw_secret)
-        self.save()
-        return raw_secret
 
+        raw_secret = f"pit_sk_{self.environment}_{secrets.token_urlsafe(32)}"
+
+        encrypted_secret = fernet.encrypt(raw_secret.encode()).decode()
+        # self.client_secret = encrypted_secret
+        self.client_secret = raw_secret
+
+        self.save()
+
+        print(f"RAW SECRET: {raw_secret}")
+        return raw_secret
+        
+
+    def get_decrypted_secret(self):
+        return fernet.decrypt(self.client_secret.encode()).decode()
+    
     def verify_secret(self, raw_secret):
-        """Verify a raw secret against the stored hashed secret"""
-        return check_password(raw_secret, self.client_secret)
+        try:
+            stored_secret = self.get_decrypted_secret()
+            return secrets.compare_digest(stored_secret, raw_secret)
+        except Exception:
+            return False
+
+    def masked_secret(self):
+        try:
+            secret = self.get_decrypted_secret()
+            return f"{secret[:12]}****{secret[-4:]}"
+        except Exception:
+            return "Invalid"

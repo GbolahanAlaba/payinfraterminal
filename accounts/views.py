@@ -31,7 +31,8 @@ class RegisterView(APIView):
                     "email": "john@example.com",
                     "password": "strongpassword",
                     "first_name": "John",
-                    "last_name": "Doe"
+                    "last_name": "Doe",
+                    "business_name": "PayGrade Inc"
                 }
             )
         ],

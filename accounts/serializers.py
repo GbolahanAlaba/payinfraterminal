@@ -14,10 +14,11 @@ from modules.utils.emails import OnboardingEmailTasks
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=6)
+    business_name = serializers.CharField(write_only=True, min_length=6)
 
     class Meta:
         model = User
-        fields = ["email", "password", "first_name", "last_name"]
+        fields = ["email", "password", "first_name", "last_name", "business_name"]
 
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
@@ -26,12 +27,18 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop("password")
+        business_name = validated_data.pop("business_name")
 
         user = User.objects.create_user(
             password=password,
             is_active=False,
             is_approved=False,
             **validated_data
+        )
+
+        merchant = Merchant.objects.create(
+            user=user,
+            business_name=business_name
         )
 
         otp_code = str(random.randint(100000, 999999))
@@ -41,7 +48,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             purpose="email"
         )
 
-        OnboardingEmailTasks.send_verify_email(user, otp_code)
+        # OnboardingEmailTasks.send_verify_email(user, otp_code)
 
         return user
 

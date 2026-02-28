@@ -13,7 +13,6 @@ def create_user_profile(sender, instance, created, **kwargs):
     if created:
         acct_type = AccountType.objects.filter(name="Business").first()
         Profile.objects.create(user=instance, account_type=acct_type)
-        Merchant.objects.create(user=instance)
 
 
 @receiver(post_save, sender=Merchant)

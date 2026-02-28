@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 import environ
 
@@ -187,6 +188,7 @@ EMAIL_TIMEOUT = 300
 SUPPORT_EMAIL = "support@payinfra.co"
 EMAIL_PREFIX = "iGospel"
 
+SECRET_ENCRYPTION_KEY = os.environ.get("SECRET_ENCRYPTION_KEY").encode()
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Pay Infra Terminal API",
