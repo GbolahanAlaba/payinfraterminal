@@ -1,6 +1,7 @@
 from django.contrib import admin
 from api.models.client import APIClient
-from api.admin import RateLimitInline
+from api.admin import RateLimitInline, UsageRecordInline
+
 
 @admin.register(APIClient)
 class APIClientAdmin(admin.ModelAdmin):

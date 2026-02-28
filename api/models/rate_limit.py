@@ -1,6 +1,6 @@
 import uuid
 from django.db import models
-from merchants.models import Merchant
+
 
 class APIRateLimitTier(models.TextChoices):
     STARTER = "starter", "Starter"
@@ -17,11 +17,11 @@ class APIRateLimit(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     
     # Merchant Association
-    merchant = models.OneToOneField(
-        Merchant,
+    client = models.OneToOneField(
+        "api.APIClient",
         on_delete=models.CASCADE,
         related_name="rate_limit",
-        help_text="Associated merchant"
+        help_text="Associated merchant APIClient"
     )
     
     # Tier
