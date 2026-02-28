@@ -47,8 +47,7 @@ class APIClient(models.Model):
         raw_secret = f"pit_sk_{self.environment}_{secrets.token_urlsafe(32)}"
 
         encrypted_secret = fernet.encrypt(raw_secret.encode()).decode()
-        # self.client_secret = encrypted_secret
-        self.client_secret = raw_secret
+        self.client_secret = encrypted_secret
 
         self.save()
 
