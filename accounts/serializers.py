@@ -29,7 +29,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         user = User.objects.create_user(
             password=password,
-            is_active=True,
+            is_active=False,
             is_approved=False,
             **validated_data
         )

@@ -46,7 +46,7 @@ def setup_merchant_related(sender, instance: Merchant, created, **kwargs):
         )
 
     # 3. Create default subscription
-    plan = Plan.objects.filter(name='free')
+    plan = Plan.objects.filter(name='Free').first()
     MerchantSubscription.objects.create(
         merchant=instance,
         plan=plan,
