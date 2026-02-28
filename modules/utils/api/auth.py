@@ -14,7 +14,7 @@ def authenticate_client(request):
     except APIClient.DoesNotExist:
         raise AuthenticationFailed("Invalid client_id.")
 
-    if not check_password(client_secret, api_client.client_secret):
+    if not APIClient.verify_secret(client_secret, api_client.client_secret):
         raise AuthenticationFailed("Invalid client_secret.")
 
     return api_client
