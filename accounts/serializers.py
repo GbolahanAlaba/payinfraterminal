@@ -34,8 +34,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             **validated_data
         )
 
-        Profile.objects.create(user=user)
-        Merchant.objects.create(user=user)
         otp_code = str(random.randint(100000, 999999))
         OTP.objects.create(
             user=user,

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .client import APIClient
+from api.models import APIClient
 
 
 class APIClientInline(admin.StackedInline):
