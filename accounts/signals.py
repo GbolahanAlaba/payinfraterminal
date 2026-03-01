@@ -27,10 +27,9 @@ def setup_merchant_related(sender, instance: Merchant, created, **kwargs):
         client = APIClient.objects.create(
             merchant=instance,
             client_name=f"{instance.business_name} ({env})",
-            client_id=secrets.token_hex(16),
-            client_secret=secrets.token_urlsafe(32),
             environment=env
         )
+        raw_secret = client.generate_credentials()
         api_clients.append(client)
 
     # 2. Create default rate limits

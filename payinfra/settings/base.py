@@ -188,7 +188,7 @@ EMAIL_TIMEOUT = 300
 SUPPORT_EMAIL = "support@payinfra.co"
 EMAIL_PREFIX = "iGospel"
 
-SECRET_ENCRYPTION_KEY = os.environ.get("SECRET_ENCRYPTION_KEY").encode()
+FERNET_SECRET_KEY = os.environ.get("FERNET_SECRET_KEY").encode()
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Pay Infra Terminal API",

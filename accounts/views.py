@@ -1,4 +1,4 @@
-# views.py
+from django.db import transaction
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -16,6 +16,7 @@ from .serializers import (
 class RegisterView(APIView):
     permission_classes = []
 
+    @transaction.atomic
     @extend_schema(
         request=RegisterSerializer,
         responses={

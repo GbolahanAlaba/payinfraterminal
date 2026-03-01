@@ -19,11 +19,8 @@ class ProcessPaymentAPIView(APIView):
         provider = serializer.validated_data["provider"]
         amount = serializer.validated_data["amount"]
 
-        APIUsageRecord.objects.create(
-            client=api_client,
-            endpoint="process_payment",
-            request_count=1
-        )
+        from modules.utils.api.misc import create_or_update_api_usage
+        create_or_update_api_usage(api_client, "process-payment", "post", 201, "2")
 
         response_data = {
             "status": "success",

@@ -8,6 +8,7 @@ class APIUsageRecord(models.Model):
     client = models.ForeignKey(APIClient, on_delete=models.CASCADE, related_name="usage_records")
     endpoint = models.CharField(max_length=255)
     method = models.CharField(max_length=10)
+    request_count = models.IntegerField()
     status_code = models.IntegerField()
     response_time = models.FloatField(help_text="Response time in milliseconds")
     created_at = models.DateTimeField(auto_now_add=True)
