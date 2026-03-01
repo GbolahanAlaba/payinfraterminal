@@ -1,8 +1,8 @@
-from payments.paystack.transactions import Transactions
-from payments.paystack.misc import Miscellaneous
-from payments.paystack.verification import Verification
-from payments.paystack.transfer import Transfers
-from payments.paystack.subaccounts import Subaccounts
+from connectors.payments.paystack.transactions import Transactions
+from connectors.payments.paystack.misc import Miscellaneous
+from connectors.payments.paystack.verification import Verification
+from connectors.payments.paystack.transfer import Transfers
+from connectors.payments.paystack.subaccounts import Subaccounts
 
 
 class PaystackClient:

@@ -4,9 +4,9 @@ from decimal import Decimal
 import uuid
 
 from django.conf import settings
-from payments.providers.base import BasePaymentProvider
-from payments.flutterwave import FlutterwaveClient
-from payments.flutterwave.exceptions import FlutterwaveAPIException
+from connectors.payments.providers.base import BasePaymentProvider
+from connectors.payments.flutterwave import FlutterwaveClient
+from connectors.payments.flutterwave.exceptions import FlutterwaveAPIException
 
 # Set up logging
 logger = logging.getLogger(__name__)

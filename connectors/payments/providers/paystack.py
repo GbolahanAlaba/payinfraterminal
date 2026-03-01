@@ -1,42 +1,53 @@
 import logging
 from typing import Any
 from django.conf import settings
-from payments.providers.base import BasePaymentProvider
-from payments.paystack.paystack import PaystackClient
-from modules.utils.utils import ServiceProvidersEnvironment  # import the function
+from connectors.payments.providers.base import BasePaymentProvider
+from connectors.payments.paystack.paystack import PaystackClient
 
 log = logging.getLogger("my_logger")
 
 
 class PaystackProvider(BasePaymentProvider):
     """
-    Paystack Payment Provider Implementation using settings and active DB environment.
+    Paystack Payment Provider Implementation.
+    Supports dynamic secret keys per merchant.
     """
 
-    def __init__(self):
+    def __init__(self, secret_key: str, callback_url: str = None):
         """
-        Initializes Paystack provider using the secret key from settings,
-        dynamically switching between test and live based on ThirdPartyEnvironment.
+        :param secret_key: Merchant Paystack secret key
+        :param callback_url: Optional override callback URL
         """
-        env_details = ServiceProvidersEnvironment.get_paystack_environment_details()
-        secret_key = env_details.get("PAYSTACK_SECRET_KEY")
-        self.callback_url = getattr(settings, "PAYSTACK_CALLBACK_URL", None)
 
         if not secret_key:
-            raise ValueError("Paystack secret key is missing in settings.")
+            raise ValueError("Paystack secret key is required.")
+
+        self.secret_key = secret_key
+        self.callback_url = callback_url or getattr(
+            settings, "PAYSTACK_CALLBACK_URL", None
+        )
 
         super().__init__(api_client=PaystackClient(secret_key=secret_key))
-        self.name = "Paystack"
+        self.name = "paystack"
 
-    def initialize_transaction(self, email, amount, **kwargs):
-        amount = int(amount)  # *100 if needed by Paystack API
+    # ------------------------------------------------------------------
+    # INITIALIZE
+    # ------------------------------------------------------------------
+    def initialize_transaction(self, *, email, amount, reference, metadata=None):
+
+        amount = int(amount)  # already converted to kobo before this ideally
+
+        payload = {
+            "email": email,
+            "amount": amount,
+            "reference": reference,
+            "metadata": metadata or {},
+        }
+
         if self.callback_url:
-            kwargs["callback_url"] = self.callback_url
-        return self.api_client.transactions.initialize_transaction(
-            email,
-            amount,
-            **kwargs,
-        )
+            payload["callback_url"] = self.callback_url
+
+        return self.api_client.transactions.initialize_transaction(**payload)
 
     def verify_transaction(self, transaction_id):
         return self.api_client.transactions.verify_transaction(transaction_id)

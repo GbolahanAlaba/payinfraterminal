@@ -1,6 +1,6 @@
 from typing import Any
 
-from payments.paystack.base import PaystackBase
+from connectors.payments.paystack.base import PaystackBase
 
 
 class Miscellaneous(PaystackBase):

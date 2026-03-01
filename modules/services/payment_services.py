@@ -24,43 +24,36 @@ class PaymentService:
 
     payment_providers = PAYMENT_PROVIDERS
 
-    def __init__(self):
+    def __init__(self, provider_name: str, secret_key: str):
         if not self.payment_providers:
+            raise ImproperlyConfigured("No active payment providers configured")
+
+        provider_name = provider_name.lower()
+
+        if provider_name not in self.payment_providers:
             raise ImproperlyConfigured(
-                "No active payment providers configured"
+                f"Payment provider '{provider_name}' not supported"
             )
 
-    # ---------------------------------------------------------------------
-    # PROVIDER
-    # ---------------------------------------------------------------------
-    def get_default_provider_class(self):
-        """
-        Returns the first active payment provider.
-        """
-        provider_name, provider_class = next(iter(self.payment_providers.items()))
-        log.info(f"Using payment provider: {provider_name}")
-        return provider_class
+        self.provider_name = provider_name
+        self.secret_key = secret_key
+        self.provider_class = self.payment_providers[provider_name]
 
     # ---------------------------------------------------------------------
-    # PAYMENT INITIALIZATION (NO MONEY MOVES HERE)
+    def get_provider_instance(self):
+        """
+        Returns provider instance with merchant secret key.
+        """
+        return self.provider_class(secret_key=self.secret_key)
+
     # ---------------------------------------------------------------------
     def initialize_payment(
         self,
         *,
-        amount: Optional[Decimal],
-        net_amount: Optional[Decimal],
+        amount: Decimal,
         email: str,
-        profile_id: str,
         reference: Optional[str] = None,
-        description: str = "Donation",
-        
     ):
-        """
-        Step 1:
-        - Initialize payment with Paystack
-        - Create a PENDING donation transaction
-        - DO NOT credit any wallet yet
-        """
 
         if not amount:
             raise ValueError("Amount is required")
@@ -68,44 +61,31 @@ class PaymentService:
         if not email:
             raise ValueError("Email is required")
 
-        if not profile_id:
-            raise ValueError("profile_id is required")
-        
-        if not amount:
-            raise ValueError("Amount is required for payment initialization.")
-
         amount = Decimal(amount)
 
-        provider_class = self.get_default_provider_class()
-        provider = provider_class()
-        log.info(f"Initializing payment of {amount} for {email} using {provider_class.__name__}")
-
         if not reference:
-            reference = f"PAY-{uuid.uuid4().hex[:10]}"
+            reference = None
 
-        log.info(f"Initializing payment {reference} for {email}")
+        provider = self.get_provider_instance()
 
-        # ---- Initialize with Paystack ----
         init_data = provider.initialize_transaction(
-            amount=int(amount * 100),  # Paystack expects kobo
+            amount=int(amount * 100),
             email=email,
             reference=reference,
-            metadata={
-                "profile_id": profile_id,
-                "description": description,
-                "net_amount": str(net_amount),
-            },
+            metadata={"amount": str(amount)},
         )
-        log.info(f"Payment initialized with data: {init_data}")
 
         cleaned_data = provider.clean_init_data(init_data)
 
         return {
             "status": "success",
-            "payment_url": cleaned_data.get("payment_url"),
-            "reference": reference,
-            "amount": amount,
+            "provider": self.provider_name,
+            "provider_data": {"data": init_data,}
+            # "payment_url": cleaned_data.get("payment_url"),
+            # "reference": cleaned_data.get("reference"),
+            # "amount": amount,
         }
+
             
     # ---------------------------------------------------------------------
     # OPTIONAL: MANUAL VERIFICATION (NOT WEBHOOK)
