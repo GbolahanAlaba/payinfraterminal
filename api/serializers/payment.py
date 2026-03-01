@@ -6,6 +6,7 @@ class PaymentRequestSerializer(serializers.Serializer):
     amount = serializers.DecimalField(max_digits=12, decimal_places=2)
     reference = serializers.CharField(max_length=100, required=False)
     secret_key = serializers.CharField(max_length=100)
+    callback_url = serializers.CharField(max_length=100, required=False)
 
     def validate_amount(self, value):
         if value <= 0:

@@ -53,6 +53,7 @@ class PaymentService:
         amount: Decimal,
         email: str,
         reference: Optional[str] = None,
+        callback_url: Optional[str] = None,
     ):
 
         if not amount:
@@ -72,6 +73,7 @@ class PaymentService:
             amount=int(amount * 100),
             email=email,
             reference=reference,
+            callback_url=callback_url,
             metadata={"amount": str(amount)},
         )
 

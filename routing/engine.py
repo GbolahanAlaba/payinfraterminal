@@ -11,6 +11,7 @@ class PaymentRouteEngine:
         email: str,
         reference: str | None = None,
         secret_key: str,
+        callback_url: str,
     ):
 
         service = PaymentService(

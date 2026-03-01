@@ -22,6 +22,7 @@ class ProcessPaymentAPIView(APIView):
         amount = serializer.validated_data["amount"]
         reference = serializer.validated_data.get("reference")
         secret_key = serializer.validated_data["secret_key"]
+        callback_url = serializer.validated_data.get("callback_url")
 
         engine = PaymentRouteEngine()
 
@@ -32,7 +33,7 @@ class ProcessPaymentAPIView(APIView):
                 email=email,
                 reference=reference,
                 secret_key=secret_key,
-                
+                callback_url=callback_url, 
             )
 
             create_or_update_api_usage(

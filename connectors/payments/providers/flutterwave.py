@@ -16,26 +16,24 @@ class FlutterwaveProvider(BasePaymentProvider):
     Flutterwave Payment Provider Implementation.
     """
 
-    def __init__(self):
+    def __init__(self, secret_key: str, callback_url: str = None):
         """
-        Initialize Flutterwave provider using settings.
+        Initialize Flutterwave provider with merchant-specific secret key.
         """
-        flutterwave_settings = settings.PAYMENT_PROVIDER.get("FLUTTERWAVE", {})
-
-        secret_key = flutterwave_settings.get("secret_key")
-        self.callback_url = flutterwave_settings.get("callback_url")
-        self.webhook_secret = flutterwave_settings.get("webhook_secret")
-        
-        # Determine if we're in sandbox mode
-        self.is_sandbox = secret_key and secret_key.startswith("FLWSECK_TEST")
-
         if not secret_key:
-            logger.error("Flutterwave secret key is missing in settings.")
-            raise ValueError("Flutterwave secret key is missing in settings.")
+            raise ValueError("Flutterwave secret key is required.")
+
+        self.secret_key = secret_key
+        self.callback_url = callback_url or getattr(
+            settings, "PAYMENT_PROVIDER", {}
+        ).get("FLUTTERWAVE", {}).get("callback_url")
+
+        # Determine if sandbox mode
+        self.is_sandbox = secret_key.startswith("FLWSECK_TEST")
 
         # Initialize API client
         super().__init__(api_client=FlutterwaveClient(
-            secret_key=secret_key, 
+            secret_key=secret_key,
             is_sandbox=self.is_sandbox
         ))
 
