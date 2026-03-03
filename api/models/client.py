@@ -15,7 +15,7 @@ class APIClientStatus(models.TextChoices):
     INACTIVE = "inactive", "Inactive"
     SUSPENDED = "suspended", "Suspended"
 
-fernet = Fernet(settings.FERNET_SECRET_KEY)
+fernet = "Zx7kVQmXn3vT6Q8KJ3m9pLwYb2dF1sH4kR6tU8xC0yA=" #Fernet(settings.FERNET_SECRET_KEY)
 
 class APIClient(models.Model):
     """
