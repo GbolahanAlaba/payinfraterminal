@@ -113,7 +113,7 @@ class VerifyRegistrationOTPSerializer(serializers.Serializer):
         except OTP.DoesNotExist:
             raise serializers.ValidationError({"detail": "Invalid OTP"})
 
-        if otp.is_expired():
+        if otp.is_expired:
             raise serializers.ValidationError({"detail": "OTP expired"})
 
         attrs["user"] = user
