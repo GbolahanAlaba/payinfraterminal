@@ -24,7 +24,7 @@ class PaymentService:
 
     payment_providers = PAYMENT_PROVIDERS
 
-    def __init__(self, provider_name: str, secret_key: str):
+    def __init__(self, provider_name: str, secret_key: str, callback_url=None):
         if not self.payment_providers:
             raise ImproperlyConfigured("No active payment providers configured")
 
@@ -37,6 +37,7 @@ class PaymentService:
 
         self.provider_name = provider_name
         self.secret_key = secret_key
+        self.callback_url = callback_url
         self.provider_class = self.payment_providers[provider_name]
 
     # ---------------------------------------------------------------------
@@ -44,7 +45,7 @@ class PaymentService:
         """
         Returns provider instance with merchant secret key.
         """
-        return self.provider_class(secret_key=self.secret_key)
+        return self.provider_class(secret_key=self.secret_key, callback_url=self.callback_url)
 
     # ---------------------------------------------------------------------
     def initialize_payment(

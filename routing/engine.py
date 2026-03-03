@@ -17,6 +17,7 @@ class PaymentRouteEngine:
         service = PaymentService(
             provider_name=provider,
             secret_key=secret_key,
+            callback_url=callback_url,
         )
 
         return service.initialize_payment(

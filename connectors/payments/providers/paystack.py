@@ -33,7 +33,7 @@ class PaystackProvider(BasePaymentProvider):
     # ------------------------------------------------------------------
     # INITIALIZE
     # ------------------------------------------------------------------
-    def initialize_transaction(self, *, email, amount, reference, metadata=None):
+    def initialize_transaction(self, *, email, amount, reference=None, callback_url=None, metadata=None, **kwargs):
 
         amount = int(amount)  # already converted to kobo before this ideally
 
@@ -44,6 +44,8 @@ class PaystackProvider(BasePaymentProvider):
             "metadata": metadata or {},
         }
 
+        if callback_url:
+            payload["callback_url"] = callback_url
         if self.callback_url:
             payload["callback_url"] = self.callback_url
 

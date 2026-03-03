@@ -17,21 +17,20 @@ class FlutterwaveProvider(BasePaymentProvider):
     """
 
     def __init__(self, secret_key: str, callback_url: str = None):
-        """
-        Initialize Flutterwave provider with merchant-specific secret key.
-        """
         if not secret_key:
             raise ValueError("Flutterwave secret key is required.")
 
-        self.secret_key = secret_key
-        self.callback_url = callback_url or getattr(
-            settings, "PAYMENT_PROVIDER", {}
-        ).get("FLUTTERWAVE", {}).get("callback_url")
+        flutterwave_settings = getattr(settings, "PAYMENT_PROVIDER", {}).get("FLUTTERWAVE", {})
+        default_callback = flutterwave_settings.get("callback_url")
 
-        # Determine if sandbox mode
+        self.callback_url = callback_url or default_callback
+
+        if not self.callback_url:
+            raise ValueError("Flutterwave callback_url must be configured.")
+
+        self.secret_key = secret_key
         self.is_sandbox = secret_key.startswith("FLWSECK_TEST")
 
-        # Initialize API client
         super().__init__(api_client=FlutterwaveClient(
             secret_key=secret_key,
             is_sandbox=self.is_sandbox
@@ -44,6 +43,7 @@ class FlutterwaveProvider(BasePaymentProvider):
         email: str, 
         amount: int, 
         currency: str = "NGN",
+        reference: Optional[str] = None,
         **kwargs
     ) -> Dict[str, Any]:
         """
@@ -84,7 +84,7 @@ class FlutterwaveProvider(BasePaymentProvider):
             if phone_number:
                 customer_data["phonenumber"] = phone_number
 
-            reference = kwargs.get("reference", f"TITAA-{uuid.uuid4().hex[:12].upper()}")
+            tx_ref = reference or uuid.uuid4().hex[:12].upper()
 
             metadata = {
                 "order_id": kwargs.get("order_id"),
@@ -98,7 +98,7 @@ class FlutterwaveProvider(BasePaymentProvider):
             metadata = {key: value for key, value in metadata.items() if value is not None}
 
             payment_response = self.api_client.payments.create_payment(
-                tx_ref=reference,
+                tx_ref=tx_ref,
                 amount=amount_str,
                 currency=currency.upper(),
                 redirect_url=redirect_url,
@@ -112,7 +112,7 @@ class FlutterwaveProvider(BasePaymentProvider):
             
             payment_response.setdefault("data", {})
             payment_response["data"].update({
-                "tx_ref": reference,
+                "tx_ref": tx_ref,
                 "amount": amount_str,
                 "currency": currency.upper(),
                 "redirect_url": redirect_url
