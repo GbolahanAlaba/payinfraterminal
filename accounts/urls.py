@@ -5,13 +5,13 @@ from .views import (
     LoginView,
     ForgotPasswordView,
     ResetPasswordView,
-    VerifyRegistrationOTPView
+    VerifyOTPView
 )
 
 urlpatterns = [
     path("auth/register/", RegisterView.as_view()),
     path("auth/login/", LoginView.as_view()),
-    path("auth/verify-otp/", VerifyRegistrationOTPView.as_view(), name="verify"),
+    path("auth/verify-otp/", VerifyOTPView.as_view(), name="verify"),
     path("auth/forgot-password/", ForgotPasswordView.as_view()),
     path("auth/reset-password/", ResetPasswordView.as_view()),
 ]

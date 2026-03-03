@@ -8,7 +8,7 @@ from .serializers import (
     LoginSerializer,
     ForgotPasswordSerializer,
     ResetPasswordSerializer,
-    VerifyRegistrationOTPSerializer
+    VerifyOTPSerializer
 )
 
 
@@ -80,14 +80,14 @@ class LoginView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-class VerifyRegistrationOTPView(APIView):
+class VerifyOTPView(APIView):
     permission_classes = []
     """
     API endpoint to verify registration OTP.
     """
 
     @extend_schema(
-        request=VerifyRegistrationOTPSerializer,
+        request=VerifyOTPSerializer,
         responses={
             200: OpenApiResponse(description="Email verified successfully"),
             400: OpenApiResponse(description="Invalid or expired OTP")
@@ -104,13 +104,25 @@ class VerifyRegistrationOTPView(APIView):
         ]
     )
     def post(self, request):
-        serializer = VerifyRegistrationOTPSerializer(data=request.data)
+        serializer = VerifyOTPSerializer(data=request.data)
+
         if serializer.is_valid():
-            user = serializer.save()
-            return Response(
-                {"message": "Email verified successfully. Your account is now active."},
-                status=status.HTTP_200_OK
-            )
+            result = serializer.save()
+
+            purpose = result["purpose"]
+
+            if purpose == "email":
+                return Response(
+                    {"message": "Email verified successfully. Your account is now active."},
+                    status=status.HTTP_200_OK
+                )
+
+            elif purpose == "password":
+                return Response(
+                    {"message": "OTP verified successfully. You may now reset your password."},
+                    status=status.HTTP_200_OK
+                )
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class ForgotPasswordView(APIView):

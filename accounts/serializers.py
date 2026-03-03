@@ -85,7 +85,7 @@ class LoginSerializer(serializers.Serializer):
             }
         }
 
-class VerifyRegistrationOTPSerializer(serializers.Serializer):
+class VerifyOTPSerializer(serializers.Serializer):
     email = serializers.CharField(max_length=255)
     purpose = serializers.CharField(max_length=255)
     otp = serializers.CharField(max_length=6)
@@ -96,12 +96,14 @@ class VerifyRegistrationOTPSerializer(serializers.Serializer):
         otp_code = attrs.get("otp")
 
         if not email or not purpose or not otp_code:
-            raise serializers.ValidationError({"detail": "Email, purpose, and OTP are required"})
-        
+            raise serializers.ValidationError(
+                {"detail": "Email, purpose, and OTP are required"}
+            )
+
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            raise serializers.ValidationError("User not found")
+            raise serializers.ValidationError({"detail": "User not found"})
 
         try:
             otp = OTP.objects.filter(
@@ -124,15 +126,25 @@ class VerifyRegistrationOTPSerializer(serializers.Serializer):
         user = self.validated_data["user"]
         otp = self.validated_data["otp"]
 
-        user.is_approved = True
-        user.is_active = True
-        user.save()
-
         otp.is_used = True
         otp.save()
 
-        OnboardingEmailTasks.send_verification_confirmation(user)
-        return user
+        if otp.purpose == "email":
+            user.is_approved = True
+            user.is_active = True
+            user.save(update_fields=["is_approved", "is_active"])
+
+            OnboardingEmailTasks.send_verification_confirmation(user)
+
+        elif otp.purpose == "password":
+            # For password reset, you just validate OTP
+            # Actual password change happens in another endpoint
+            pass
+
+        return {
+            "user": user,
+            "purpose": otp.purpose
+        }
     
 class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
