@@ -48,7 +48,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             purpose="email"
         )
 
-        # OnboardingEmailTasks.send_verify_email(user, otp_code)
+        OnboardingEmailTasks.send_verify_email(user, otp_code)
 
         return user
 
