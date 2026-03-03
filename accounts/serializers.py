@@ -126,13 +126,13 @@ class VerifyOTPSerializer(serializers.Serializer):
         user = self.validated_data["user"]
         otp = self.validated_data["otp"]
 
-        otp.is_used = True
-        otp.save()
-
         if otp.purpose == "email":
             user.is_approved = True
             user.is_active = True
             user.save(update_fields=["is_approved", "is_active"])
+
+            otp.is_used = True
+            otp.save()
 
             OnboardingEmailTasks.send_verification_confirmation(user)
 
@@ -195,7 +195,7 @@ class ResetPasswordSerializer(serializers.Serializer):
         except OTP.DoesNotExist:
             raise serializers.ValidationError("Invalid OTP")
 
-        if otp.is_expired():
+        if otp.is_expired:
             raise serializers.ValidationError("OTP expired")
 
         # Update password
