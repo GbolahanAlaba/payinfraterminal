@@ -26,9 +26,7 @@ class ProviderAPIKey(models.Model):
 
     secret_key = models.CharField(max_length=255)
     public_key = models.CharField(max_length=255, blank=True, null=True)
-
     is_active = models.BooleanField(default=True)
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -39,3 +37,45 @@ class ProviderAPIKey(models.Model):
 
     def __str__(self):
         return f"{self.get_provider_display()} key for {self.client.merchant.business_name}"
+
+class ClientProvider(models.Model):
+
+    client = models.ForeignKey(
+        APIClient,
+        on_delete=models.CASCADE,
+        related_name="providers"
+    )
+
+    provider = models.CharField(max_length=50, choices=PaymentProvider.choices,)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("client", "provider")
+
+    def __str__(self):
+        return f"{self.client.merchant.business_name} - {self.provider}"
+
+class MerchantProviderCredential(models.Model):
+    client_provider = models.OneToOneField(
+        ClientProvider,
+        on_delete=models.CASCADE,
+        related_name="credentials"
+    )
+
+    # Encrypted JSON blob containing keys/tokens/certs/etc.
+    credentials = models.JSONField()
+    credential_type = models.CharField(
+        max_length=50,
+        default="api_key"
+    )
+
+    is_encrypted = models.BooleanField(default=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Credentials for {self.client_provider}"
+    
+
