@@ -4,7 +4,7 @@ All database models for the Billing service (Plans, Subscriptions, Usage Records
 """
 
 from .plan import Plan
-from .subacription import MerchantSubscription
+from .subscription import MerchantSubscription
 from .invoice import Invoice, InvoiceStatus
 from .usage import UsageRecord
 
