@@ -1,5 +1,7 @@
 from django.db import transaction
 from rest_framework.views import APIView
+from django.db.models import Prefetch
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
@@ -10,7 +12,10 @@ from .serializers import (
     ResetPasswordSerializer,
     VerifyOTPSerializer
 )
-
+from .models import Profile
+from merchants.models import Merchant
+from api.models import APIClient, ClientProvider
+from .serializers import SettingsSerializer
 
 
 class RegisterView(APIView):
@@ -181,3 +186,38 @@ class ResetPasswordView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class SettingsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        profile = Profile.objects.select_related(
+            "account_type"
+        ).get(user=user)
+
+        merchants = Merchant.objects.filter(user=user).prefetch_related(
+            "kyc_documents",
+            Prefetch(
+                "api_clients",
+                queryset=APIClient.objects.prefetch_related(
+                    Prefetch(
+                        "providers",
+                        queryset=ClientProvider.objects.prefetch_related(
+                            "credentials"
+                        )
+                    )
+                )
+            )
+        )
+
+        data = {
+            "setting_data": {
+                "profile": profile,
+                "merchants": merchants
+            },
+            
+        }
+
+        serializer = SettingsSerializer(data)
+        return Response(serializer.data)

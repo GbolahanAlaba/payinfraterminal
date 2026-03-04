@@ -54,7 +54,7 @@ class ClientProvider(models.Model):
         unique_together = ("client", "provider")
 
     def __str__(self):
-        return f"{self.client.merchant.business_name} - {self.provider}"
+        return f"{self.client.merchant.business_name} - {self.client.environment} - {self.provider}"
 
 class ClientProviderCredential(models.Model):
     client_provider = models.OneToOneField(
