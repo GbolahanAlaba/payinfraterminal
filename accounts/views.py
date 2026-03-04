@@ -179,3 +179,5 @@ class ResetPasswordView(APIView):
             return Response(serializer.validated_data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+

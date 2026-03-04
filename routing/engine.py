@@ -1,7 +1,7 @@
 import logging
 
 from modules.services.payment_services import PaymentService
-from api.models import ClientProvider, MerchantProviderCredential
+from api.models import ClientProvider, ClientProviderCredential
 
 
 log = logging.getLogger(__name__)
@@ -73,7 +73,7 @@ class PaymentRouteEngine:
             else:
                 credentials = merchant_credentials.credentials
             return credentials
-        except MerchantProviderCredential.DoesNotExist:
+        except ClientProviderCredential.DoesNotExist:
             raise ValueError(f"No credentials found for provider '{provider_name}'.")
 
     def decrypt_credentials(self, encrypted_data: dict):

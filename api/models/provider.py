@@ -56,7 +56,7 @@ class ClientProvider(models.Model):
     def __str__(self):
         return f"{self.client.merchant.business_name} - {self.provider}"
 
-class MerchantProviderCredential(models.Model):
+class ClientProviderCredential(models.Model):
     client_provider = models.OneToOneField(
         ClientProvider,
         on_delete=models.CASCADE,

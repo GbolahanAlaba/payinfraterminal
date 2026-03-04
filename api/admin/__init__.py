@@ -6,7 +6,7 @@ All database admin for the APIs service
 from .rate_limit import RateLimitAdmin, RateLimitInline
 from .usage import UsageRecordInline
 from .client import APIClientAdmin
-from .provider import ProviderAPIKeyAdmin, ClientProviderAdmin, MerchantProviderCredentialAdmin
+from .provider import ProviderAPIKeyAdmin, ClientProviderAdmin, ClientProviderCredential
 
 
 __all__ = [
@@ -16,5 +16,5 @@ __all__ = [
     "APIClientAdmin",
     "ProviderAPIKeyAdmin",
     "ClientProviderAdmin",
-    "MerchantProviderCredentialAdmin",
+    "ClientProviderCredential",
 ]
