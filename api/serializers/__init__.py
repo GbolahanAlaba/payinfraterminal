@@ -4,11 +4,12 @@ All payment serializers for the APIs service
 """
 
 from .payment import PaymentRequestSerializer
-from .client import APIClientSerializer, ClientProviderSerializer, ClientProviderCredentialSerializer
+from .client import APIClientSerializer, ClientProviderSerializer, ClientProviderCredentialSerializer, SetupClientProviderSerializer
 
 __all__ = [
     "PaymentRequestSerializer",
     "APIClientSerializer",
     "ClientProviderSerializer",
     "ClientProviderCredentialSerializer",
+    "SetupClientProviderSerializer",
 ]

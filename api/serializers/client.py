@@ -2,7 +2,7 @@
 
 from attr import attrs
 from rest_framework import serializers
-from api.models import ClientProviderCredential, ClientProvider, APIClient
+from api.models import ClientProviderCredential, ClientProvider, APIClient, Environment, PaymentProvider
 
 
 
@@ -46,3 +46,10 @@ class APIClientSerializer(serializers.ModelSerializer):
             "status",
             "providers",
         ]
+
+class SetupClientProviderSerializer(serializers.Serializer):
+    merchant_id = serializers.CharField()
+    environment = serializers.ChoiceField(choices=Environment.choices)
+    provider = serializers.ChoiceField(choices=PaymentProvider.choices)
+    credentials = serializers.JSONField()
+    credential_type = serializers.CharField(default="api_key")
