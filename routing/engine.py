@@ -69,18 +69,15 @@ class PaymentRouteEngine:
         try:
             merchant_credentials = client_provider.credentials
             if merchant_credentials.is_encrypted:
-                credentials = self.decrypt_credentials(merchant_credentials.credentials)
+                credentials = merchant_credentials.decrypt_credentials()
+                credential = credentials.get("secret_key") # To be used for paystack and flutterwave. Adjust if you have different keys for different providers
             else:
                 credentials = merchant_credentials.credentials
-            return credentials
+                credential = credentials.get("secret_key") # To be used for paystack and flutterwave. Adjust if you have different keys for different providers
+
+            return credential
         except ClientProviderCredential.DoesNotExist:
             raise ValueError(f"No credentials found for provider '{provider_name}'.")
-
-    def decrypt_credentials(self, encrypted_data: dict):
-        """
-        Example decryption logic (adjust to your encryption)
-        """
-        return encrypted_data.get("api_key") or encrypted_data.get("secret_key")
         
 
 

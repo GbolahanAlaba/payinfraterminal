@@ -1,6 +1,9 @@
+import json
 import uuid
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from cryptography.fernet import Fernet
 from .client import APIClient
 
 
@@ -78,4 +81,29 @@ class ClientProviderCredential(models.Model):
     def __str__(self):
         return f"Credentials for {self.client_provider}"
     
+    @property
+    def _fernet(self):
+        return Fernet(settings.CREDENTIAL_ENCRYPTION_KEY.encode())
+
+    def encrypt_credentials(self, raw_data: dict) -> str:
+        json_data = json.dumps(raw_data)
+        encrypted = self._fernet.encrypt(json_data.encode())
+        return encrypted.decode()
+
+    def decrypt_credentials(self) -> dict:
+        if not self.credentials:
+            return {}
+
+        decrypted = self._fernet.decrypt(
+            self.credentials.encode()
+        )
+        return json.loads(decrypted.decode())
+
+
+    def save(self, *args, **kwargs):
+        if self.credentials and not self.is_encrypted:
+            self.credentials = self.encrypt_credentials(self.credentials)
+            self.is_encrypted = True
+
+        super().save(*args, **kwargs)
 
