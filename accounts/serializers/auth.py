@@ -6,10 +6,11 @@ from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User, Profile, OTP
+from accounts.models import User, OTP
 from merchants.models import Merchant
 from merchants.serializers import MerchantSerializer
 from modules.utils.emails import OnboardingEmailTasks
+from accounts.serializers import ProfileSerializer
 
 
 
@@ -207,22 +208,8 @@ class ResetPasswordSerializer(serializers.Serializer):
         otp.save()
 
         return {"message": "Password reset successful"}
-    
-class ProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = [
-            "id",
-            "profile_id",
-            "phone",
-            "gender",
-            "image",
-            "bio",
-            "address",
-            "country",
-            "state",
-            "account_type",
-        ]
+
+
 
 class SettingsSerializer(serializers.Serializer):
     profile = ProfileSerializer()

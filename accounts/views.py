@@ -1,21 +1,26 @@
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from django.db.models import Prefetch
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
-from .serializers import (
+
+from accounts.serializers import (
+    UpdateProfileSerializer, 
+    ProfileSerializer,
     RegisterSerializer,
     LoginSerializer,
     ForgotPasswordSerializer,
     ResetPasswordSerializer,
-    VerifyOTPSerializer
+    VerifyOTPSerializer,
+    SettingsSerializer
 )
 from .models import Profile
 from merchants.models import Merchant
 from api.models import APIClient, ClientProvider
-from .serializers import SettingsSerializer
+
 
 
 class RegisterView(APIView):
@@ -224,3 +229,48 @@ class SettingsView(APIView):
                 "data": serializer.data
             }
         )
+    
+
+class UpdateProfileAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        tags=["Profile"],
+        summary="Update User Profile",
+        description="Allows authenticated users to update their profile information.",
+        request=UpdateProfileSerializer,
+        responses={
+            200: ProfileSerializer,
+            400: OpenApiResponse(description="Validation error"),
+        },
+        examples=[
+            OpenApiExample(
+                name="Update Profile Example",
+                value={
+                    "phone": "08012345678",
+                    "gender": "male",
+                    "bio": "Fintech infrastructure builder",
+                    "address": "Victoria Island",
+                    "country": "Nigeria",
+                    "state": "Lagos"
+                },
+                request_only=True,
+            )
+        ],
+    )
+    def patch(self, request):
+        profile = get_object_or_404(Profile, user=request.user)
+
+        serializer = UpdateProfileSerializer(
+            profile,
+            data=request.data,
+            partial=True  # Important for PATCH
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response({
+            "status": "success",
+            "message": "Profile updated successfully",
+            "data": ProfileSerializer(profile).data
+        }, status=status.HTTP_200_OK)
