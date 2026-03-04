@@ -212,12 +212,15 @@ class SettingsView(APIView):
         )
 
         data = {
-            "setting_data": {
-                "profile": profile,
-                "merchants": merchants
-            },
-            
+            "profile": profile,
+            "merchants": merchants
         }
 
         serializer = SettingsSerializer(data)
-        return Response(serializer.data)
+        return Response(
+            {
+                "status": "success", 
+                "message": "Data retrieved successfully", 
+                "data": serializer.data
+            }
+        )
