@@ -14,7 +14,7 @@ class UserAdmin(BaseUserAdmin):
     )
     list_filter = ('is_staff', 'is_active', 'is_approved')
     search_fields = ('email', 'first_name', 'last_name')
-    ordering = ('email',)
+    ordering = ('-date_joined',)
     readonly_fields = ('date_joined', 'last_login')
 
     fieldsets = (

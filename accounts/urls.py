@@ -6,7 +6,8 @@ from .views import (
     ForgotPasswordView,
     ResetPasswordView,
     VerifyOTPView,
-    SettingsView
+    UserDetailView,
+    UpdateProfileAPIView,
 )
 
 urlpatterns = [
@@ -15,5 +16,6 @@ urlpatterns = [
     path("auth/verify-otp/", VerifyOTPView.as_view(), name="verify"),
     path("auth/forgot-password/", ForgotPasswordView.as_view()),
     path("auth/reset-password/", ResetPasswordView.as_view()),
-    path("auth/settings/", SettingsView.as_view()),
+    path("profile/update/", UpdateProfileAPIView.as_view()),
+    path("user/details/", UserDetailView.as_view()),
 ]

@@ -15,11 +15,13 @@ from accounts.serializers import (
     ForgotPasswordSerializer,
     ResetPasswordSerializer,
     VerifyOTPSerializer,
-    SettingsSerializer
+    UserDetailSerializer
 )
+
 from .models import Profile
 from merchants.models import Merchant
 from api.models import APIClient, ClientProvider
+from modules.core.response import success_response
 
 
 
@@ -191,7 +193,7 @@ class ResetPasswordView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class SettingsView(APIView):
+class UserDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -221,13 +223,11 @@ class SettingsView(APIView):
             "merchants": merchants
         }
 
-        serializer = SettingsSerializer(data)
-        return Response(
-            {
-                "status": "success", 
-                "message": "Data retrieved successfully", 
-                "data": serializer.data
-            }
+        serializer = UserDetailSerializer(data)
+        return success_response(
+            serializer.data, 
+            message="Data retrieved successfully", 
+            status_code=status.HTTP_200_OK
         )
     
 
@@ -269,8 +269,4 @@ class UpdateProfileAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        return Response({
-            "status": "success",
-            "message": "Profile updated successfully",
-            "data": ProfileSerializer(profile).data
-        }, status=status.HTTP_200_OK)
+        return success_response(serializer.data, status_code=status.HTTP_200_OK)

@@ -15,3 +15,4 @@ class APIClientAdmin(admin.ModelAdmin):
     list_filter = ('environment', 'status', 'created_at')
     search_fields = ('client_name', 'merchant__business_name', 'merchant__user__email')
     readonly_fields = ('client_public_key', 'client_secret_key', 'created_at', 'updated_at')
+    ordering = ('-created_at',)

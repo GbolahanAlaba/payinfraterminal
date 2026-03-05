@@ -211,6 +211,6 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 
 
-class SettingsSerializer(serializers.Serializer):
+class UserDetailSerializer(serializers.Serializer):
     profile = ProfileSerializer()
     merchants = MerchantSerializer(many=True)

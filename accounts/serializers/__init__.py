@@ -10,7 +10,7 @@ from .auth import (
     ForgotPasswordSerializer,
     ResetPasswordSerializer,
     VerifyOTPSerializer,
-    SettingsSerializer
+    UserDetailSerializer
 )
 
 
@@ -23,5 +23,5 @@ __all__ = [
     "ForgotPasswordSerializer",
     "ResetPasswordSerializer",
     "VerifyOTPSerializer",
-    "SettingsSerializer"
+    "UserDetailSerializer"
 ]

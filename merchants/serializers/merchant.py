@@ -27,3 +27,9 @@ class MerchantSerializer(serializers.ModelSerializer):
             "kyc_documents",
             "api_clients",
         ]
+
+
+class MerchantUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Merchant
+        exclude = ['id', 'user', 'merchant_id', 'created_at', 'updated_at', 'is_verified']

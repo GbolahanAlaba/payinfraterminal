@@ -42,3 +42,4 @@ class MerchantProviderCredentialAdmin(admin.ModelAdmin):
     list_display = ("client_provider", "credential_type", "is_encrypted", "created_at", "updated_at")
     search_fields = ("client_provider__client__merchant__name", "credential_type")
     readonly_fields = ("created_at", "updated_at")
+    ordering = ('-created_at',)

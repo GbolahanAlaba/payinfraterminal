@@ -67,12 +67,12 @@ class PaymentRouteEngine:
             raise ValueError(f"Provider '{provider_name}' is not configured for this merchant.")
 
         try:
-            merchant_credentials = client_provider.credentials
-            if merchant_credentials.is_encrypted:
-                credentials = merchant_credentials.decrypt_credentials()
+            client_provider_credentials = client_provider.credentials
+            if client_provider_credentials.is_encrypted:
+                credentials = client_provider_credentials.decrypt_credentials()
                 credential = credentials.get("secret_key") # To be used for paystack and flutterwave. Adjust if you have different keys for different providers
             else:
-                credentials = merchant_credentials.credentials
+                credentials = client_provider_credentials.credentials
                 credential = credentials.get("secret_key") # To be used for paystack and flutterwave. Adjust if you have different keys for different providers
 
             return credential
