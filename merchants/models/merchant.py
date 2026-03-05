@@ -30,7 +30,7 @@ class Merchant(models.Model):
     business_name = models.CharField(max_length=255)
     business_email = models.EmailField(blank=True, null=True)
     business_phone = models.CharField(max_length=20, blank=True, null=True)
-
+    business_type = models.CharField(max_length=100, blank=True, null=True)
     merchant_type = models.CharField(
         max_length=20,
         choices=MerchantType.choices,
