@@ -1,10 +1,5 @@
-
-
-from attr import attrs
 from rest_framework import serializers
 from api.models import ClientProviderCredential, ClientProvider, APIClient, Environment, PaymentProvider
-
-
 
 
 class ClientProviderCredentialSerializer(serializers.ModelSerializer):

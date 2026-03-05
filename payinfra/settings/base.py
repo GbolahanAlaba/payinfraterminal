@@ -196,6 +196,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         
     ],
+    "EXCEPTION_HANDLER": "modules.core.exceptions.custom_exception_handler",
 }
 
 
