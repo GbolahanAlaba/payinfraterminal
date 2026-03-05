@@ -18,7 +18,6 @@ class MerchantSerializer(serializers.ModelSerializer):
             "business_email",
             "business_phone",
             "business_type",
-            "merchant_type",
             "website",
             "address",
             "country",

@@ -36,7 +36,6 @@ class MerchantViewSet(viewsets.ViewSet):
                     "business_email": "contact@newbusiness.com",
                     "business_phone": "+2348012345678",
                     "business_type": "E-commerce",
-                    "merchant_type": "llc",
                     "website": "https://newsite.com",
                     "address": "123 Business Street, Lagos",
                     "country": "Nigeria",
