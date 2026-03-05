@@ -7,6 +7,7 @@ from api.serializers import PaymentRequestSerializer
 from modules.utils.api.auth import authenticate_client
 from modules.utils.api.misc import create_or_update_api_usage
 from routing.engine import PaymentRouteEngine
+from modules.core.response import success_response
 
 log = logging.getLogger(__name__)
 
@@ -83,18 +84,22 @@ class ProcessPaymentAPIView(APIView):
             )
             create_or_update_api_usage(
                 api_client,
-                "process-payment",
+                "initiate-payment",
                 "post",
                 200,
                 "2"
             )
 
-            return Response(payment_response, status=status.HTTP_200_OK)
+            return success_response(
+                payment_response,
+                message="Payment initiated successfully",
+                status_code=status.HTTP_200_OK
+            )
 
         except Exception as e:
             create_or_update_api_usage(
                 api_client,
-                "process-payment",
+                "initiate-payment",
                 "post",
                 400,
                 "2"

@@ -12,6 +12,7 @@ from django.db import transaction
 from api.models import APIClient, ClientProvider, ClientProviderCredential
 from api.serializers import SetupClientProviderSerializer
 from merchants.models import Merchant
+from modules.core.response import success_response
 
 
 class SetupClientProviderAPIView(APIView):
@@ -120,8 +121,11 @@ class SetupClientProviderAPIView(APIView):
                 "is_encrypted": False  # change if you encrypt
             }
         )
-
-        return Response({
-            "status": "success",
-            "message": f"{provider_name.lower()} configured successfully for {environment}"
-        }, status=status.HTTP_200_OK)
+        
+        return success_response(
+            {
+                "status": "success",
+                "message": f"{provider_name.lower()} configured successfully for {environment}"
+            },
+            status_code=status.HTTP_200_OK
+        )

@@ -18,4 +18,5 @@ urlpatterns = [
     path("auth/reset-password/", ResetPasswordView.as_view()),
     path("profile/update/", UpdateProfileAPIView.as_view()),
     path("user/details/", UserDetailView.as_view()),
+    path("auth/settings/", UserDetailView.as_view()),
 ]
