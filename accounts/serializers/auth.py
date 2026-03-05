@@ -11,6 +11,7 @@ from merchants.models import Merchant
 from merchants.serializers import MerchantSerializer
 from modules.utils.emails import OnboardingEmailTasks
 from accounts.serializers import ProfileSerializer
+from modules.utils.utils import KYCUtils
 
 
 
@@ -75,6 +76,8 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Account restricted")
 
         refresh = RefreshToken.for_user(user)
+        merchant = user.merchants
+        kyc_verified = KYCUtils.is_kyc_verified(merchant)
 
         return {
             "refresh": str(refresh),
@@ -84,6 +87,7 @@ class LoginSerializer(serializers.Serializer):
                 "email": user.email,
                 "full_name": user.full_name,
                 "status": user.status,
+                "kyc_status": "verified" if kyc_verified else "pending"
             }
         }
 
