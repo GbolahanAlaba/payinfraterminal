@@ -55,6 +55,7 @@ class APIClient(models.Model):
         choices=APIClientStatus.choices,
         default=APIClientStatus.ACTIVE
     )
+    live_mode = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

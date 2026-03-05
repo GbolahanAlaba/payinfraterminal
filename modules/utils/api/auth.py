@@ -8,7 +8,14 @@ def authenticate_client(request):
 
     if not client_public_key or not client_secret_key:
         raise AuthenticationFailed("Missing API credentials.")
+    try:
+        public_env = client_public_key.split("_")[2].lower()
+        secret_env = client_secret_key.split("_")[2].lower()
 
+        if public_env != secret_env:
+            raise AuthenticationFailed("Public key and secret key do not match.")
+    except IndexError:
+        raise AuthenticationFailed("Invalid API key format.")
     try:
         api_client = APIClient.objects.get(client_public_key=client_public_key, status="active")
     except APIClient.DoesNotExist:
