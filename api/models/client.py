@@ -7,7 +7,7 @@ from merchants.models import Merchant
 
 class Environment(models.TextChoices):
     LIVE = "live", "Live"
-    SANDBOX = "Sandbox", "sandbox"
+    SANDBOX = "sandbox", "Sandbox"
 
 
 class APIClientStatus(models.TextChoices):
