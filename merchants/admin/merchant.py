@@ -22,6 +22,7 @@ class MerchantInline(admin.StackedInline):
         'country',
         'state',
         'is_verified',
+        "live_mode",
         'created_at',
         'updated_at',
     )
@@ -44,14 +45,14 @@ class MerchantAdmin(admin.ModelAdmin):
             # RateLimitInline,
         ]
 
-    list_display = ("business_name", "user", "merchant_type", "is_verified", "created_at")
-    list_filter = ("merchant_type", "is_verified", "created_at")
+    list_display = ("business_name", "user", "merchant_type", "is_verified", "live_mode", "created_at")
+    list_filter = ("merchant_type", "is_verified", "live_mode", "created_at")
     search_fields = ("business_name", "user__email", "user__first_name", "user__last_name")
     readonly_fields = ("merchant_id", "created_at", "updated_at")
 
     fieldsets = (
         (None, {"fields": ("user", "merchant_id", "business_name", "business_email", "business_phone")}),
         ("Business Details", {"fields": ("merchant_type", "website", "address", "country", "state")}),
-        ("Status", {"fields": ("is_verified",)}),
+        ("Status", {"fields": ("is_verified", "live_mode")}),
         ("Timestamps", {"fields": ("created_at", "updated_at")}),
     )

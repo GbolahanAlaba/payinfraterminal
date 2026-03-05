@@ -78,6 +78,7 @@ class LoginSerializer(serializers.Serializer):
         refresh = RefreshToken.for_user(user)
         merchant = user.merchants
         kyc_verified = KYCUtils.is_kyc_verified(merchant)
+        mode = KYCUtils.get_merchant_mode(merchant)
 
         return {
             "refresh": str(refresh),
@@ -87,7 +88,8 @@ class LoginSerializer(serializers.Serializer):
                 "email": user.email,
                 "full_name": user.full_name,
                 "status": user.status,
-                "kyc_status": "verified" if kyc_verified else "pending"
+                "kyc_status": "verified" if kyc_verified else "pending",
+                "merchant_mode": mode
             }
         }
 

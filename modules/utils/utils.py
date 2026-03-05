@@ -75,6 +75,12 @@ class KYCUtils:
     def is_kyc_verified(merchant):
         return merchant.kyc_documents.filter(verified=True).exists()
 
+    def get_merchant_mode(merchant):
+        if merchant.live_mode == True:
+            return "live"
+        else:
+            return "sandbox"
+
 class ServiceProvidersEnvironment:
 
     def get_provider(self, provider: str, environment: str):
