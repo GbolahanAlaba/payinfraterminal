@@ -4,6 +4,7 @@ class PaymentRequestSerializer(serializers.Serializer):
     provider = serializers.CharField(max_length=100)
     email = serializers.CharField(max_length=100)
     amount = serializers.DecimalField(max_digits=12, decimal_places=2)
+    currency = serializers.CharField(max_length=10, required=False, allow_blank=True, allow_null=True)
     reference = serializers.CharField(max_length=100, required=False, allow_blank=True, allow_null=True)
     callback_url = serializers.CharField(max_length=100, required=False)
 

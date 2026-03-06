@@ -15,6 +15,7 @@ class PaymentRouteEngine:
         *,
         provider: str,
         amount,
+        currency: str | None,
         email: str,
         reference: str | None = None,
         secret_key: str,
@@ -27,6 +28,7 @@ class PaymentRouteEngine:
         )
         return service.initialize_payment(
             amount=amount,
+            currency=currency,
             email=email,
             reference=reference,
         )

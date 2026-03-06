@@ -74,6 +74,7 @@ class ProcessPaymentAPIView(APIView):
         provider = serializer.validated_data["provider"]
         email = serializer.validated_data["email"]
         amount = serializer.validated_data["amount"]
+        currency = serializer.validated_data.get("currency") or "NGN"
         reference = serializer.validated_data.get("reference")
         callback_url = serializer.validated_data.get("callback_url")
 
@@ -84,6 +85,7 @@ class ProcessPaymentAPIView(APIView):
             payment_response = engine.route_payment(
                 provider=provider,
                 amount=amount,
+                currency=currency,
                 email=email,
                 reference=reference,
                 secret_key=credentials,

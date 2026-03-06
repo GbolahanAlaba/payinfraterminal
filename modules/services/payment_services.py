@@ -86,6 +86,7 @@ class PaymentService:
         email: str,
         reference: Optional[str] = None,
         callback_url: Optional[str] = None,
+        currency: Optional[str] = None,
     ):
         """Initialize payment and return unified response."""
         if not amount or not email:
@@ -95,6 +96,7 @@ class PaymentService:
 
         init_data = provider.initialize_transaction(
             amount=int(amount * 100),
+            currency=currency,
             email=email,
             reference=reference,
             callback_url=callback_url,
