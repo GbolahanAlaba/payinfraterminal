@@ -42,6 +42,14 @@ class APIClientSerializer(serializers.ModelSerializer):
             "providers",
         ]
 
+class RegenerateAPIKeysSerializer(serializers.ModelSerializer):
+    environment = serializers.ReadOnlyField()
+
+    class Meta:
+        model = APIClient
+        fields = ["client_public_key", "client_secret_key", "environment"]
+
+
 class SetupClientProviderSerializer(serializers.Serializer):
     merchant_id = serializers.CharField()
     environment = serializers.ChoiceField(choices=Environment.choices)

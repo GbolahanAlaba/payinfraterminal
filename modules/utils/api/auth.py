@@ -3,8 +3,8 @@ from django.contrib.auth.hashers import check_password
 from rest_framework.exceptions import AuthenticationFailed
 
 def authenticate_client(request):
-    client_public_key = request.headers.get("X-Client-Public-Key")
-    client_secret_key = request.headers.get("X-Client-Secret-Key")
+    client_public_key = request.headers.get("Client-Public-Key")
+    client_secret_key = request.headers.get("Client-Secret-Key")
 
     if not client_public_key or not client_secret_key:
         raise AuthenticationFailed("Missing API credentials.")
