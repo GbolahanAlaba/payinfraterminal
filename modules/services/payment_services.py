@@ -34,7 +34,7 @@ class PaymentService:
         """Return provider instance with merchant secret key."""
         return self.provider_class(secret_key=self.secret_key, callback_url=self.callback_url)
 
-    def _unify_response(self, cleaned_data: dict, raw_data: dict) -> dict:
+    def _unify_response(self, cleaned_data: dict, raw_data: dict, amount: Decimal) -> dict:
         provider_data = raw_data.get("data", {}).copy()
         provider_data.update(cleaned_data)
 
@@ -49,7 +49,7 @@ class PaymentService:
             "reference": provider_data.get("reference")
             or provider_data.get("tx_ref"),
 
-            "amount": provider_data.get("amount"),
+            "amount": provider_data.get("amount") or str(amount),
             "currency": provider_data.get("currency") or "NGN",
             "metadata": provider_data.get("metadata") or {},
             "provider": provider_data.get("provider") or self.provider_name,
@@ -108,7 +108,7 @@ class PaymentService:
 
         # Return unified response with fallback
         cleaned_data = provider.clean_init_data(init_data)
-        response = self._unify_response(cleaned_data, init_data)
+        response = self._unify_response(cleaned_data, init_data, amount)
         return response
 
     def verify_payment(self, reference: str):
