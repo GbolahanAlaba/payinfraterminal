@@ -5,7 +5,6 @@ class PaymentRequestSerializer(serializers.Serializer):
     email = serializers.CharField(max_length=100)
     amount = serializers.DecimalField(max_digits=12, decimal_places=2)
     reference = serializers.CharField(max_length=100, required=False, allow_blank=True, allow_null=True)
-    secret_key = serializers.CharField(max_length=100, required=False, allow_blank=True, allow_null=True)
     callback_url = serializers.CharField(max_length=100, required=False)
 
     def validate_amount(self, value):
