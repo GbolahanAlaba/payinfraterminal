@@ -21,14 +21,14 @@ class ProcessPaymentAPIView(APIView):
         description="Processes a payment through the PaymentRouteEngine. Merchants must provide their public and secret keys in headers.",
         parameters=[
             OpenApiParameter(
-                name="X-Client-Public-Key",
+                name="Client-Public-Key",
                 location=OpenApiParameter.HEADER,
                 description="Your merchant public key",
                 required=True,
                 type=str
             ),
             OpenApiParameter(
-                name="X-Client-Secret-Key",
+                name="Client-Secret-Key",
                 location=OpenApiParameter.HEADER,
                 description="Your merchant secret key",
                 required=True,
@@ -45,10 +45,17 @@ class ProcessPaymentAPIView(APIView):
                             "status": "success",
                             "message": "Payment processed",
                             "data": {
-                                "provider": "paystack",
-                                "amount": 1000,
-                                "reference": "abc123",
-                                "status": "completed"
+                                "payment_url": "https://checkout-v2.dev-flutterwave.com/v3/hosted/pay/72fec2269cd27725212a",
+                                "access_code": "FAADE880352C",
+                                "reference": "FAADE880352C",
+                                "amount": "10000.00",
+                                "currency": "NGN",
+                                "metadata": {},
+                                "provider": "flutterwave",
+                                "link": "https://checkout-v2.dev-flutterwave.com/v3/hosted/pay/72fec2269cd27725212a",
+                                "tx_ref": "FAADE880352C",
+                                "redirect_url": "https://payflow.com/payments/",
+                                "status": "success"
                             }
                         }
                     }

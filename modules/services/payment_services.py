@@ -35,27 +35,41 @@ class PaymentService:
         return self.provider_class(secret_key=self.secret_key, callback_url=self.callback_url)
 
     def _unify_response(self, cleaned_data: dict, raw_data: dict) -> dict:
-        """
-        Return a unified payment response that:
-        - Keeps all original provider fields
-        - Maps common fields to standard names for frontend
-        """
         provider_data = raw_data.get("data", {}).copy()
         provider_data.update(cleaned_data)
 
         unified_data = {
             "payment_url": provider_data.get("payment_url")
-                or provider_data.get("authorization_url")
-                or provider_data.get("link"),
-            "access_code": provider_data.get("access_code") or provider_data.get("tx_ref"),
-            "reference": provider_data.get("reference") or provider_data.get("tx_ref"),
+            or provider_data.get("authorization_url")
+            or provider_data.get("link"),
+
+            "access_code": provider_data.get("access_code")
+            or provider_data.get("tx_ref"),
+
+            "reference": provider_data.get("reference")
+            or provider_data.get("tx_ref"),
+
             "amount": provider_data.get("amount"),
             "currency": provider_data.get("currency") or "NGN",
             "metadata": provider_data.get("metadata") or {},
             "provider": provider_data.get("provider") or self.provider_name,
         }
 
-        extra_fields = {k: v for k, v in provider_data.items() if k not in unified_data}
+        # fields that are aliases of unified fields
+        alias_fields = {
+            "authorization_url",
+            "link",
+            "tx_ref",
+            "payment_url",
+            "reference",
+            "access_code",
+        }
+
+        extra_fields = {
+            k: v for k, v in provider_data.items()
+            if k not in unified_data and k not in alias_fields
+        }
+
         unified_data.update(extra_fields)
 
         return {

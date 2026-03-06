@@ -1,0 +1,821 @@
+openapi: 3.0.3
+info:
+  title: Pay Infra Terminal API
+  version: 1.0.0
+  description: |-
+    API documentation
+
+    **Total API endpoints:** 13
+paths:
+  /v1/accounts/auth/forgot-password/:
+    post:
+      operationId: v1_accounts_auth_forgot_password_create
+      tags:
+      - Accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+            examples:
+              ForgotPasswordExample:
+                value:
+                  email: john@example.com
+                summary: Forgot Password Example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: OTP sent
+        '400':
+          description: User not found
+  /v1/accounts/auth/login/:
+    post:
+      operationId: v1_accounts_auth_login_create
+      tags:
+      - Accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              LoginExample:
+                value:
+                  email: john@example.com
+                  password: strongpassword
+                summary: Login Example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: Login successful
+        '400':
+          description: Invalid credentials
+  /v1/accounts/auth/register/:
+    post:
+      operationId: v1_accounts_auth_register_create
+      tags:
+      - Accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            examples:
+              RegisterExample:
+                value:
+                  email: john@example.com
+                  password: strongpassword
+                  first_name: John
+                  last_name: Doe
+                  business_name: PayGrade Inc
+                summary: Register Example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          description: Registration successful
+        '400':
+          description: Validation error
+  /v1/accounts/auth/reset-password/:
+    post:
+      operationId: v1_accounts_auth_reset_password_create
+      tags:
+      - Accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+            examples:
+              ResetPasswordExample:
+                value:
+                  email: john@example.com
+                  otp: '123456'
+                  new_password: newstrongpassword
+                summary: Reset Password Example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: Password reset successful
+        '400':
+          description: Invalid OTP or user
+  /v1/accounts/auth/settings/:
+    get:
+      operationId: v1_accounts_auth_settings_retrieve
+      tags:
+      - Accounts
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /v1/accounts/auth/verify-otp/:
+    post:
+      operationId: v1_accounts_auth_verify_otp_create
+      tags:
+      - Accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyOTPRequest'
+            examples:
+              VerifyOTPExample:
+                value:
+                  email: john@example.com
+                  purpose: email
+                  otp: '123456'
+                summary: Verify OTP Example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VerifyOTPRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VerifyOTPRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: Email verified successfully
+        '400':
+          description: Invalid or expired OTP
+  /v1/accounts/profile/update/:
+    patch:
+      operationId: v1_accounts_profile_update_partial_update
+      description: Allows authenticated users to update their profile information.
+      summary: Update User Profile
+      tags:
+      - Accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateProfileRequest'
+            examples:
+              UpdateProfileExample:
+                value:
+                  phone: 08012345678
+                  gender: male
+                  bio: Fintech infrastructure builder
+                  address: Victoria Island
+                  country: Nigeria
+                  state: Lagos
+                summary: Update Profile Example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateProfileRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateProfileRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+          description: ''
+        '400':
+          description: Validation error
+  /v1/accounts/user/details/:
+    get:
+      operationId: v1_accounts_user_details_retrieve
+      tags:
+      - Accounts
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /v1/api/client-provider/setup/:
+    post:
+      operationId: v1_api_client_provider_setup_create
+      description: "\n        Configure a payment provider (e.g Paystack, Flutterwave)
+        \n        for a specific merchant and environment (Live or Sandbox).\n\n        If
+        provider already exists → credentials will be updated.\n        If provider
+        does not exist → it will be created.\n        "
+      summary: Setup or Update Client Provider Credentials
+      tags:
+      - Api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetupClientProviderRequest'
+            examples:
+              SandboxSetupExample:
+                value:
+                  merchant_id: '165714267'
+                  environment: Sandbox
+                  provider: paystack
+                  credential_type: api_key
+                  credentials:
+                    public_key: pk_test_xxxxx
+                    secret_key: sk_test_xxxxx
+                summary: Sandbox Setup Example
+              LiveSetupExample:
+                value:
+                  merchant_id: '165714267'
+                  environment: live
+                  provider: paystack
+                  credential_type: api_key
+                  credentials:
+                    public_key: pk_live_xxxxx
+                    secret_key: sk_live_xxxxx
+                summary: Live Setup Example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetupClientProviderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SetupClientProviderRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: Provider configured successfully
+        '400':
+          description: Validation error
+        '404':
+          description: Merchant or API client not found
+  /v1/api/client/{client_id}/regenerate-keys/:
+    post:
+      operationId: v1_api_client_regenerate_keys_create
+      description: Regenerate API keys for a merchant's client.
+      parameters:
+      - in: path
+        name: client_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /v1/api/initiate-payment/:
+    post:
+      operationId: v1_api_initiate_payment_create
+      description: Processes a payment through the PaymentRouteEngine. Merchants must
+        provide their public and secret keys in headers.
+      summary: Process a payment
+      parameters:
+      - in: header
+        name: Client-Public-Key
+        schema:
+          type: string
+        description: Your merchant public key
+        required: true
+      - in: header
+        name: Client-Secret-Key
+        schema:
+          type: string
+        description: Your merchant secret key
+        required: true
+      tags:
+      - Api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaymentRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PaymentRequestRequest'
+        required: true
+      responses:
+        '200':
+          description: Payment processed successfully
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized
+  /v1/merchants/merchant/{id}/update/:
+    patch:
+      operationId: v1_merchants_merchant_update_partial_update
+      description: Update fields of a merchant. Only the fields provided will be updated.
+      summary: Update a merchant
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Merchants
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMerchantUpdateRequest'
+            examples:
+              UpdateMerchantExample:
+                value:
+                  business_name: New Business Name
+                  business_email: contact@newbusiness.com
+                  business_phone: '+2348012345678'
+                  business_type: E-commerce
+                  website: https://newsite.com
+                  address: 123 Business Street, Lagos
+                  country: Nigeria
+                  state: Lagos
+                  registration_number: RC1234567
+                summary: Update Merchant Example
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMerchantUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMerchantUpdateRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantUpdate'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+  /v1/merchants/switch/toggle-merchant-mode/:
+    patch:
+      operationId: v1_merchants_switch_toggle_merchant_mode_partial_update
+      description: "\n        Enable or disable live mode for the authenticated merchant.\n\n
+        \       - `true` → Production transactions enabled\n        - `false` → Sandbox
+        mode only\n\n        Merchant must be verified before enabling live mode.\n
+        \       "
+      summary: Switch Merchant Live Mode
+      tags:
+      - Merchants
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedToggleMerchantModeRequest'
+            examples:
+              EnableLiveMode:
+                value:
+                  live_mode: true
+                summary: Enable Live Mode
+              DisableLiveMode:
+                value:
+                  live_mode: false
+                summary: Disable Live Mode
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedToggleMerchantModeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedToggleMerchantModeRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: Live mode updated successfully
+        '403':
+          description: Merchant not verified
+        '401':
+          description: Authentication credentials were not provided
+components:
+  schemas:
+    ForgotPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+      required:
+      - email
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - email
+      - password
+    MerchantUpdate:
+      type: object
+      properties:
+        business_name:
+          type: string
+          maxLength: 255
+        business_email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        business_phone:
+          type: string
+          nullable: true
+          maxLength: 20
+        business_type:
+          type: string
+          nullable: true
+          maxLength: 100
+        merchant_type:
+          enum:
+          - sole_proprietor
+          - llc
+          - corporation
+          type: string
+          description: |-
+            * `sole_proprietor` - Sole Proprietor
+            * `llc` - Limited Liability Company
+            * `corporation` - Corporation
+          x-spec-enum-id: cc35cfb9f6048917
+        website:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 200
+        address:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+          maxLength: 100
+        state:
+          type: string
+          nullable: true
+          maxLength: 100
+        registration_number:
+          type: string
+          nullable: true
+          maxLength: 50
+        live_mode:
+          type: boolean
+      required:
+      - business_name
+    PatchedMerchantUpdateRequest:
+      type: object
+      properties:
+        business_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        business_email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        business_phone:
+          type: string
+          nullable: true
+          maxLength: 20
+        business_type:
+          type: string
+          nullable: true
+          maxLength: 100
+        merchant_type:
+          enum:
+          - sole_proprietor
+          - llc
+          - corporation
+          type: string
+          description: |-
+            * `sole_proprietor` - Sole Proprietor
+            * `llc` - Limited Liability Company
+            * `corporation` - Corporation
+          x-spec-enum-id: cc35cfb9f6048917
+        website:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 200
+        address:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+          maxLength: 100
+        state:
+          type: string
+          nullable: true
+          maxLength: 100
+        registration_number:
+          type: string
+          nullable: true
+          maxLength: 50
+        live_mode:
+          type: boolean
+    PatchedToggleMerchantModeRequest:
+      type: object
+      properties:
+        live_mode:
+          type: boolean
+    PatchedUpdateProfileRequest:
+      type: object
+      properties:
+        phone:
+          type: string
+          maxLength: 20
+        gender:
+          enum:
+          - male
+          - female
+          - ''
+          type: string
+          description: |-
+            * `male` - Male
+            * `female` - Female
+          x-spec-enum-id: d6713b157e7b4bdf
+        image:
+          type: string
+          format: binary
+          nullable: true
+        bio:
+          type: string
+        address:
+          type: string
+          maxLength: 100
+        country:
+          type: string
+          maxLength: 100
+        state:
+          type: string
+          maxLength: 100
+    PaymentRequestRequest:
+      type: object
+      properties:
+        provider:
+          type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          minLength: 1
+          maxLength: 100
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        reference:
+          type: string
+          nullable: true
+          maxLength: 100
+        secret_key:
+          type: string
+          nullable: true
+          maxLength: 100
+        callback_url:
+          type: string
+          minLength: 1
+          maxLength: 100
+      required:
+      - amount
+      - email
+      - provider
+    Profile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        first_name:
+          type: string
+          readOnly: true
+        last_name:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        profile_id:
+          type: string
+          readOnly: true
+        phone:
+          type: string
+          maxLength: 20
+        gender:
+          enum:
+          - male
+          - female
+          - ''
+          type: string
+          description: |-
+            * `male` - Male
+            * `female` - Female
+          x-spec-enum-id: d6713b157e7b4bdf
+        image:
+          type: string
+          format: uri
+          nullable: true
+        bio:
+          type: string
+        address:
+          type: string
+          maxLength: 100
+        country:
+          type: string
+          maxLength: 100
+        state:
+          type: string
+          maxLength: 100
+        account_type:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - email
+      - first_name
+      - id
+      - last_name
+      - profile_id
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          title: Email address
+          maxLength: 255
+        password:
+          type: string
+          writeOnly: true
+          minLength: 6
+        first_name:
+          type: string
+          maxLength: 100
+        last_name:
+          type: string
+          maxLength: 100
+        business_name:
+          type: string
+          writeOnly: true
+          minLength: 6
+      required:
+      - business_name
+      - email
+      - password
+    ResetPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        otp:
+          type: string
+          minLength: 1
+          maxLength: 6
+        new_password:
+          type: string
+          minLength: 6
+      required:
+      - email
+      - new_password
+      - otp
+    SetupClientProviderRequest:
+      type: object
+      properties:
+        merchant_id:
+          type: string
+          minLength: 1
+        environment:
+          enum:
+          - live
+          - sandbox
+          type: string
+          description: |-
+            * `live` - Live
+            * `sandbox` - Sandbox
+          x-spec-enum-id: 669bbcc8f2e72411
+        provider:
+          enum:
+          - paystack
+          - flutterwave
+          - opay
+          type: string
+          description: |-
+            * `paystack` - Paystack
+            * `flutterwave` - Flutterwave
+            * `opay` - OPay
+          x-spec-enum-id: f3437ea96c5c44c2
+        credentials: {}
+        credential_type:
+          type: string
+          minLength: 1
+          default: api_key
+      required:
+      - credentials
+      - environment
+      - merchant_id
+      - provider
+    VerifyOTPRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          minLength: 1
+          maxLength: 255
+        purpose:
+          type: string
+          minLength: 1
+          maxLength: 255
+        otp:
+          type: string
+          minLength: 1
+          maxLength: 6
+      required:
+      - email
+      - otp
+      - purpose
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+- name: Accounts
+  description: Management of user accounts, authentication, and profile settings.
+- name: API
+  description: Management of client APIs.
+- name: Billing
+  description: Management of merchants' billings, subscriptions.
+- name: Communications
+  description: Management of user communications such as newsletters, notifications,
+    and contact forms.
+- name: Analytics
+  description: Tracking and analysis of blog posts, user engagement, and platform
+    metrics.
+- name: Merchants
+  description: Management of music system entities such as artists, albums, and tracks.
+- name: Transactions
+  description: Handling payments, purchases, and support interactions.

@@ -6,30 +6,6 @@ from api.models import ClientProvider, ClientProviderCredential
 
 log = logging.getLogger(__name__)
 
-# class PaymentRouteEngine:
-
-#     def route_payment(
-#         self,
-#         *,
-#         provider: str,
-#         amount,
-#         email: str,
-#         reference: str | None = None,
-#         secret_key: str,
-#         callback_url: str,
-#     ):
-
-#         service = PaymentService(
-#             provider_name=provider,
-#             secret_key=secret_key,
-#             callback_url=callback_url,
-#         )
-
-#         return service.initialize_payment(
-#             amount=amount,
-#             email=email,
-#             reference=reference,
-#         )
 class PaymentRouteEngine:
     def __init__(self, client):
         self.client = client

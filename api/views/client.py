@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from drf_spectacular.utils import extend_schema, OpenApiResponse
+from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
 from modules.core.response import success_response
 
 from api.models import APIClient
@@ -26,9 +26,9 @@ class RegenerateAPIKeysView(APIView):
             404: OpenApiResponse(description="API client not found"),
         },
         examples=[
-            {
-                "name": "Success Example",
-                "value": {
+            OpenApiExample(
+                name="Success Example",
+                value={
                     "status": "success",
                     "message": "API keys regenerated successfully",
                     "data": {
@@ -41,8 +41,9 @@ class RegenerateAPIKeysView(APIView):
                         "timestamp": "2026-03-06T14:15:22Z"
                     },
                     "raw_secret": "pit_sk_live_Af9kL2s1W0d9vTz8QjR7hP0x"
-                }
-            }
+                },
+                response_only=True
+            )
         ]
     )
     def post(self, request, client_id):
