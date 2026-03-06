@@ -118,7 +118,7 @@ class SetupClientProviderAPIView(APIView):
             defaults={
                 "credentials": credentials_data,
                 "credential_type": credential_type,
-                "is_encrypted": False  # change if you encrypt
+                "is_encrypted": False
             }
         )
         

@@ -50,12 +50,13 @@ INSTALLED_APPS = [
 
     # apps
     'accounts',
+    'analytics',
     'api',
     'billing',
     'communications',
     'merchants',
     'transactions',
-    'analytics',
+    
 
     # packages
     "debug_toolbar",
