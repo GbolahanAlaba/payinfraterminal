@@ -1,11 +1,8 @@
 import logging
-import uuid
 from decimal import Decimal
 from typing import Optional
 
 from django.core.exceptions import ImproperlyConfigured
-from django.db import transaction as db_transaction
-
 from connectors.payments.providers import PAYMENT_PROVIDERS
 
 log = logging.getLogger("my_logger")
@@ -13,13 +10,7 @@ log = logging.getLogger("my_logger")
 
 class PaymentService:
     """
-    Central payment service.
-
-    Responsibilities:
-    - Initialize payment with provider (Paystack)
-    - Create pending wallet transactions
-    - Finalize payment via webhook
-    - Split donation (artist + platform commission)
+    Central payment service with unified responses.
     """
 
     payment_providers = PAYMENT_PROVIDERS
@@ -29,7 +20,6 @@ class PaymentService:
             raise ImproperlyConfigured("No active payment providers configured")
 
         provider_name = provider_name.lower()
-
         if provider_name not in self.payment_providers:
             raise ImproperlyConfigured(
                 f"Payment provider '{provider_name}' not supported"
@@ -40,14 +30,41 @@ class PaymentService:
         self.callback_url = callback_url
         self.provider_class = self.payment_providers[provider_name]
 
-    # ---------------------------------------------------------------------
     def get_provider_instance(self):
-        """
-        Returns provider instance with merchant secret key.
-        """
+        """Return provider instance with merchant secret key."""
         return self.provider_class(secret_key=self.secret_key, callback_url=self.callback_url)
 
-    # ---------------------------------------------------------------------
+    def _unify_response(self, cleaned_data: dict, raw_data: dict) -> dict:
+        """
+        Return a unified payment response that:
+        - Keeps all original provider fields
+        - Maps common fields to standard names for frontend
+        """
+        provider_data = raw_data.get("data", {}).copy()
+        provider_data.update(cleaned_data)
+
+        unified_data = {
+            "payment_url": provider_data.get("payment_url")
+                or provider_data.get("authorization_url")
+                or provider_data.get("link"),
+            "access_code": provider_data.get("access_code") or provider_data.get("tx_ref"),
+            "reference": provider_data.get("reference") or provider_data.get("tx_ref"),
+            "amount": provider_data.get("amount"),
+            "currency": provider_data.get("currency") or "NGN",
+            "metadata": provider_data.get("metadata") or {},
+            "provider": provider_data.get("provider") or self.provider_name,
+        }
+
+        extra_fields = {k: v for k, v in provider_data.items() if k not in unified_data}
+        unified_data.update(extra_fields)
+
+        return {
+            "status": cleaned_data.get("status") or raw_data.get("status") or "success",
+            "message": cleaned_data.get("message") or raw_data.get("message") or "Transaction initialized",
+            "data": unified_data,
+        }
+
+
     def initialize_payment(
         self,
         *,
@@ -56,17 +73,9 @@ class PaymentService:
         reference: Optional[str] = None,
         callback_url: Optional[str] = None,
     ):
-
-        if not amount:
-            raise ValueError("Amount is required")
-
-        if not email:
-            raise ValueError("Email is required")
-
-        amount = Decimal(amount)
-
-        if not reference:
-            reference = None
+        """Initialize payment and return unified response."""
+        if not amount or not email:
+            raise ValueError("Amount and email are required")
 
         provider = self.get_provider_instance()
 
@@ -78,34 +87,21 @@ class PaymentService:
             metadata={"amount": str(amount)},
         )
 
+        # Use provider's clean_init_data
         cleaned_data = provider.clean_init_data(init_data)
 
-        return {
-            "status": "success",
-            "provider": self.provider_name,
-            "provider_data": {"data": init_data,}
-            # "payment_url": cleaned_data.get("payment_url"),
-            # "reference": cleaned_data.get("reference"),
-            # "amount": amount,
-        }
+        # Return unified response with fallback
+        cleaned_data = provider.clean_init_data(init_data)
+        response = self._unify_response(cleaned_data, init_data)
+        return response
 
-            
-    # ---------------------------------------------------------------------
-    # OPTIONAL: MANUAL VERIFICATION (NOT WEBHOOK)
-    # ---------------------------------------------------------------------
     def verify_payment(self, reference: str):
-        """
-        Optional manual verification endpoint.
-        Webhook should always be primary.
-        """
+        """Manual verification with unified response."""
+        provider = self.get_provider_instance()
+        raw_data = provider.verify_transaction(reference)
 
-        provider_class = self.get_default_provider_class()
-        provider = provider_class()
+        # Use provider's clean_init_data if available
+        cleaned_data = provider.clean_init_data(raw_data)
 
-        data = provider.verify_transaction(reference)
-        status = data.get("data", {}).get("status")
+        return self._unify_response(cleaned_data, raw_data)
 
-        if status != "success":
-            return {"status": "failed", "message": f"Payment {status}"}
-
-        return {"status": "success", "message": "Payment verified"}

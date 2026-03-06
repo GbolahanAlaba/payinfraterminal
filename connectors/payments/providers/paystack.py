@@ -59,10 +59,14 @@ class PaystackProvider(BasePaymentProvider):
 
         return {
             "payment_url": data.get("authorization_url"),
-            "access_code": data.get("access_code"),
+            "access_code": data.get("access_code") or data.get("reference"),
             "reference": data.get("reference"),
-            "metadata": data.get("metadata"),
-
+            "amount": data.get("amount"),        # Add amount
+            "currency": data.get("currency", "NGN"),  # Add currency
+            "metadata": data.get("metadata") or {},
+            "status": init_data.get("status", "success"),
+            "provider": "paystack"
+    
             # "raw": init_data,
         }
 

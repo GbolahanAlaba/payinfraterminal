@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
+from drf_spectacular.utils import extend_schema, OpenApiResponse
 from modules.core.response import success_response
 
 from api.models import APIClient
@@ -10,6 +11,40 @@ from api.serializers import RegenerateAPIKeysSerializer
 class RegenerateAPIKeysView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        summary="Regenerate API Keys",
+        description=(
+            "Regenerates the public and secret API keys for a merchant's API client.\n\n"
+            "The `raw_secret` is returned only once and must be stored securely."
+        ),
+        responses={
+            200: OpenApiResponse(
+                response=RegenerateAPIKeysSerializer,
+                description="API keys regenerated successfully"
+            ),
+            401: OpenApiResponse(description="Unauthorized"),
+            404: OpenApiResponse(description="API client not found"),
+        },
+        examples=[
+            {
+                "name": "Success Example",
+                "value": {
+                    "status": "success",
+                    "message": "API keys regenerated successfully",
+                    "data": {
+                        "client_public_key": "pit_pk_live_3a4f2b1c9d8e7f0a",
+                        "client_secret_key": "pit_sk_live_Af9kL2s1W0d9vTz8QjR7hP0x",
+                        "environment": "LIVE"
+                    },
+                    "meta": {
+                        "request_id": "d8e9f3a1-4a63-4c8b-9f33-2e8a6b9e1c2d",
+                        "timestamp": "2026-03-06T14:15:22Z"
+                    },
+                    "raw_secret": "pit_sk_live_Af9kL2s1W0d9vTz8QjR7hP0x"
+                }
+            }
+        ]
+    )
     def post(self, request, client_id):
         """
         Regenerate API keys for a merchant's client.
