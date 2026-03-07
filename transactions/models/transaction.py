@@ -52,7 +52,7 @@ class Transaction(models.Model):
         help_text="Payment channel used, e.g. card, bank_transfer, ussd"
     )
 
-    reference = models.CharField(max_length=100, unique=True)
+    reference = models.CharField(max_length=100, null=True, blank=True)
     
     status = models.CharField(max_length=20, choices=STATUS.choices, default=STATUS.PENDING)
     
@@ -134,11 +134,12 @@ class TransactionAttempt(models.Model):
     def __str__(self):
         return f"{self.transaction.transaction_id} - {self.provider} - {self.status}"
 
-    def create_transaction_attempt(transaction, provider, provider_reference=None):
+    def create_transaction_attempt(transaction, provider, provider_reference=None, response=None):
         attempt = TransactionAttempt.objects.create(
             transaction=transaction,
             provider=provider,
             provider_reference=provider_reference,
+            response=response or {},
             status="pending",
             retry_count=0
         )
