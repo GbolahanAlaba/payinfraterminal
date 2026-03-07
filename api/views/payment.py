@@ -6,6 +6,7 @@ from rest_framework import status
 from api.serializers import PaymentRequestSerializer
 from modules.utils.api.auth import authenticate_client
 from modules.utils.api.misc import create_or_update_api_usage
+from transactions.models import Transaction
 from routing.engine import PaymentRouteEngine
 from modules.core.response import success_response
 
@@ -79,6 +80,7 @@ class ProcessPaymentAPIView(APIView):
         callback_url = serializer.validated_data.get("callback_url")
 
         engine = PaymentRouteEngine(client=api_client)
+        merchant = api_client.merchant
 
         try:
             credentials = engine.get_provider_credentials(provider)
@@ -97,6 +99,17 @@ class ProcessPaymentAPIView(APIView):
                 "post",
                 200,
                 "2"
+            )
+
+            transaction = Transaction.create_transaction(
+                merchant=merchant,
+                amount=amount,
+                reference=reference,
+                customer_email=email,
+                currency=currency,
+                preferred_provider=provider,
+                final_provider=provider,
+                metadata={"payment_response": payment_response},
             )
 
             return success_response(

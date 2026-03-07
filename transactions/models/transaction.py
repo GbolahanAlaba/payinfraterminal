@@ -1,3 +1,4 @@
+from random import randint
 import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -67,6 +68,47 @@ class Transaction(models.Model):
     
     def __str__(self):
         return f"{self.transaction_id} - {self.status}"
+
+
+    def generate_transaction_id():
+        return f"TXN-{uuid.uuid4().hex[:12].upper()}"
+
+    def create_transaction(
+        merchant,
+        amount,
+        reference,
+        customer_email=None,
+        customer_phone=None,
+        currency="NGN",
+        channel="card",
+        transaction_type=None,
+        transaction_source=None,
+        preferred_provider=None,
+        final_provider=None,
+        metadata=None,
+    ):
+        """
+        Create a transaction record.
+        """
+
+        transaction = Transaction.objects.create(
+            transaction_id=Transaction.generate_transaction_id(),
+            merchant=merchant,
+            amount=amount,
+            reference=reference,
+            customer_email=customer_email,
+            customer_phone=customer_phone,
+            currency=currency,
+            channel=channel,
+            transaction_type=transaction_type or TRANSACTION_TYPE.COLLECTION,
+            transaction_source=transaction_source or TRANSACTION_SOURCE.API,
+            preferred_provider=preferred_provider,
+            final_provider=final_provider,
+            metadata=metadata or {},
+            message="Transaction initialized",
+        )
+
+        return transaction
     
 
 class TransactionAttempt(models.Model):
@@ -91,3 +133,14 @@ class TransactionAttempt(models.Model):
     
     def __str__(self):
         return f"{self.transaction.transaction_id} - {self.provider} - {self.status}"
+
+    def create_transaction_attempt(transaction, provider, provider_reference=None):
+        attempt = TransactionAttempt.objects.create(
+            transaction=transaction,
+            provider=provider,
+            provider_reference=provider_reference,
+            status="pending",
+            retry_count=0
+        )
+
+        return attempt
