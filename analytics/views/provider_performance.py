@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from analytics.models import ProviderPerformance
 from analytics.serializers import ProviderPerformanceSerializer
-from modules.core.response import success_response
+from modules.core.response import success_response, error_response
 from modules.utils.transactions import TransactionUtils
 
 class ProviderPerformanceView(APIView):
@@ -26,12 +26,16 @@ class ProviderPerformanceView(APIView):
     
 
 class ProviderSuccessGraphView(APIView):
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         provider = request.query_params.get("provider")
         if not provider:
-            return Response({"error": "provider query param required"}, status=400)
+            return error_response(
+                status="error",
+                message="Provider query param is required",
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
         
         data = TransactionUtils.success_rate_per_4hours(provider)
         return success_response(
