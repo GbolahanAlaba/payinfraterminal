@@ -18,3 +18,22 @@ def success_response(data=None, message="Request successful", status_code=200):
         },
         status=status_code,
     )
+
+
+def error_response(
+    message="Request failed",
+    errors=None,
+    status_code=400,
+):
+    return Response(
+        {
+            "status": "error",
+            "message": message,
+            "errors": errors,
+            "meta": {
+                "request_id": str(uuid.uuid4()),
+                "timestamp": now(),
+            },
+        },
+        status=status_code,
+    )

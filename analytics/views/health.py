@@ -12,7 +12,7 @@ from django.core.cache import cache
 from django.db import connection
 from django.core.cache import cache
 from django.conf import settings
-# from expedier.celery import celery_app
+# from payinfra.celery import celery_app
 import requests
 from modules.core.response import success_response
 from modules.core.config import GTPConfig
