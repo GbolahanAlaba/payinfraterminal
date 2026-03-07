@@ -1,5 +1,5 @@
 import logging
-from random import random
+from random import randint
 import requests
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -19,11 +19,11 @@ class TestAPIView(APIView):
         url = "http://payinfraterminal.onrender.com/v1/api/initiate-payment/"
         log.info(f"Initiating test payment to {url} with payload and headers.")
         payload = {
-            # "provider": "flutterwave",
-            "provider": "paystack",
+            "provider": "flutterwave",
+            # "provider": "paystack",
             "email": "customer@example.com", 
             "amount": 5000,                    
-            "reference": random(100000, 999999),
+            "reference": randint(100000, 999999),
             "callback_url": "https://payflow.com/payments/",
             "currency": "USD",
         }
