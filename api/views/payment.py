@@ -64,7 +64,7 @@ class ProcessPaymentAPIView(APIView):
             400: {"description": "Invalid request"},
             401: {"description": "Unauthorized"},
         },
-        tags=["Payments"]
+        tags=["API"]
     )
     def post(self, request):
         api_client = authenticate_client(request)

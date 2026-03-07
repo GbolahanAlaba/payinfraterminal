@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from drf_spectacular.utils import OpenApiResponse, extend_schema, OpenApiExample
 
 from transactions.models import Transaction
 from transactions.serializers import (
@@ -9,6 +10,7 @@ from transactions.serializers import (
     TransactionResponseSerializer,
 )
 from modules.core.response import success_response, error_response
+
 
 class CreateTransactionView(APIView):
 
@@ -29,34 +31,15 @@ class CreateTransactionView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-
-class TransactionDetailView(APIView):
-    permission_classes = [IsAuthenticated] 
-
-    def get(self, request, reference):
-
-        if reference:
-            try:
-                transaction = Transaction.objects.get(reference=reference)
-            except Transaction.DoesNotExist:
-                return error_response(
-                    message="Transaction not found",
-                    status_code=status.HTTP_404_NOT_FOUND,
-                )
-        
-        transaction = Transaction.objects.all().order_by("-created_at")
-        serializer = TransactionResponseSerializer(transaction)
-
-        return success_response(
-            data=serializer.data,
-            message="Transaction retrieved successfully",
-            status_code=200,
-            
-            )
-
 class TransactionListView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        summary="List Transactions",
+        description="Retrieve all transactions belonging to the authenticated merchant.",
+        responses={200: TransactionResponseSerializer(many=True)},
+        tags=["Transactions"],
+    )
     def get(self, request):
 
         transactions = Transaction.objects.all().order_by("-created_at")
@@ -68,9 +51,16 @@ class TransactionListView(APIView):
             message="Transactions retrieved successfully",
         )
 
+
 class TransactionDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        summary="Get Transaction",
+        description="Retrieve a transaction using its reference.",
+        responses={200: TransactionResponseSerializer},
+        tags=["Transactions"],
+    )
     def get(self, request, reference):
 
         try:

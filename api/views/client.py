@@ -44,7 +44,8 @@ class RegenerateAPIKeysView(APIView):
                 },
                 response_only=True
             )
-        ]
+        ],
+        tags=["API"]
     )
     def post(self, request, client_id):
         """
