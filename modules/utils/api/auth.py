@@ -24,4 +24,10 @@ def authenticate_client(request):
     if not api_client.client_secret_key == client_secret_key: #verify_secret(client_secret):
         raise AuthenticationFailed("Invalid client secret key.")
 
+    if client_public_key.startswith("pit_pk_live") and client_secret_key.startswith("pit_sk_live"):
+        if not api_client.merchant.live_mode:
+            raise AuthenticationFailed(
+                "You currently provided live keys but your account is not in live mode."
+            )
+
     return api_client
