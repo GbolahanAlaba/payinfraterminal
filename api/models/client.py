@@ -49,14 +49,15 @@ class APIClient(models.Model):
         choices=Environment.choices,
         default=Environment.LIVE
     )
+    webhook_url = models.CharField(max_length=255, blank=True, null=True)
+
 
     status = models.CharField(
         max_length=20,
         choices=APIClientStatus.choices,
         default=APIClientStatus.ACTIVE
     )
-    live_mode = models.BooleanField(default=True)
-
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

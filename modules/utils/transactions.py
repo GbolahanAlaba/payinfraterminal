@@ -2,21 +2,21 @@ from django.db.models import Count, Q
 from django.db.models.functions import TruncHour
 from datetime import timedelta
 from django.utils import timezone
-from transactions.models import TransactionAttempt
+from transactions.models import Transaction, TransactionAttempt
 
 
 class TransactionUtils:
 
     @staticmethod
-    def success_rate_per_4hours(provider_name):
+    # def success_rate_per_4hours(provider_name):
+    def success_rate_per_4hours():
         now = timezone.now()
         start = now - timedelta(days=1)
         
-        qs = TransactionAttempt.objects.filter(
-            attempted_at__gte=start,
-            provider=provider_name
+        qs = Transaction.objects.filter(
+            created_at__gte=start
         ).annotate(
-            hour=TruncHour('attempted_at')
+            hour=TruncHour('created_at')
         ).values('hour').annotate(
             total=Count('id'),
             success=Count('id', filter=Q(status='success'))
