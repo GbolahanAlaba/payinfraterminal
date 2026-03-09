@@ -38,6 +38,7 @@ class APIClientSerializer(serializers.ModelSerializer):
             "client_public_key",
             "client_secret_key",  # Avoid exposing raw secret
             "environment",
+            "webhook_url",
             "status",
             "providers",
         ]
@@ -49,6 +50,10 @@ class RegenerateAPIKeysSerializer(serializers.ModelSerializer):
         model = APIClient
         fields = ["client_public_key", "client_secret_key", "environment"]
 
+class UpdateWebhookURLSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = APIClient
+        fields = ["webhook_url"]
 
 class SetupClientProviderSerializer(serializers.Serializer):
     merchant_id = serializers.CharField()

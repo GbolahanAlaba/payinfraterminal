@@ -6,7 +6,7 @@ from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
 from modules.core.response import success_response
 
 from api.models import APIClient
-from api.serializers import RegenerateAPIKeysSerializer
+from api.serializers import RegenerateAPIKeysSerializer, UpdateWebhookURLSerializer
 
 class RegenerateAPIKeysView(APIView):
     permission_classes = [IsAuthenticated]
@@ -77,3 +77,45 @@ class RegenerateAPIKeysView(APIView):
         )
 
 
+class UpdateWebhookURLView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="Update Webhook URL",
+        description="Updates the webhook URL for a merchant's API client.",
+        request=OpenApiResponse(
+            response=RegenerateAPIKeysSerializer,
+            description="Webhook URL updated successfully"
+        ),
+         responses={
+            200: OpenApiResponse(description="Webhook URL updated successfully"),
+            401: OpenApiResponse(description="Unauthorized"),
+            404: OpenApiResponse(description="API client not found"),
+        },
+        tags=["API"]
+    )
+    def patch(self, request, client_id):
+        """
+        Update the webhook URL for a merchant's API client.
+        """
+
+        try:
+            api_client = APIClient.objects.get(
+                id=client_id,
+                merchant__user=request.user
+            )
+        except APIClient.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "API client not found."
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = UpdateWebhookURLSerializer(api_client, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return success_response(
+            data=serializer.data,
+            message="Webhook URL updated successfully",
+            status_code=status.HTTP_200_OK
+        )
