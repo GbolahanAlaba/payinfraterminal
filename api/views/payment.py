@@ -1,4 +1,5 @@
 import logging
+import time
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -69,6 +70,8 @@ class ProcessPaymentAPIView(APIView):
         tags=["API"]
     )
     def post(self, request):
+        start_time = time.perf_counter()
+        
         api_client = authenticate_client(request)
         serializer = PaymentRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -94,12 +97,15 @@ class ProcessPaymentAPIView(APIView):
                 secret_key=credentials,
                 callback_url=callback_url,
             )
+
+            latency = (time.perf_counter() - start_time) * 1000
+
             create_or_update_api_usage(
                 api_client,
                 "initiate-payment",
                 "post",
                 200,
-                "2"
+                latency
             )
 
             transaction = Transaction.create_transaction(
@@ -110,6 +116,7 @@ class ProcessPaymentAPIView(APIView):
                 currency=currency,
                 preferred_provider=provider,
                 final_provider=provider,
+                latency=latency,
                 metadata={"payment_response": payment_response},
             )
 

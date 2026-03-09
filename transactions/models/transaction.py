@@ -58,6 +58,15 @@ class Transaction(models.Model):
     
     preferred_provider = models.CharField(max_length=50, blank=True, null=True)
     final_provider = models.CharField(max_length=50, blank=True, null=True)
+
+    latency = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        blank=True, 
+        null=True, 
+        help_text="Latency in milliseconds for the transaction processing"
+    )
+
     message = models.TextField()
     
     created_at = models.DateTimeField(auto_now_add=True)
@@ -85,6 +94,7 @@ class Transaction(models.Model):
         transaction_source=None,
         preferred_provider=None,
         final_provider=None,
+        latency=None,
         metadata=None,
     ):
         """
@@ -104,6 +114,7 @@ class Transaction(models.Model):
             transaction_source=transaction_source or TRANSACTION_SOURCE.API,
             preferred_provider=preferred_provider,
             final_provider=final_provider,
+            latency=latency,
             metadata=metadata or {},
             message="Transaction initialized",
         )
