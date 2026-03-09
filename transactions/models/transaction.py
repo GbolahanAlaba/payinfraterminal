@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from merchants.models import Merchant
 
 class STATUS(models.TextChoices):
-    PENDING = "pending", _("Pending")
+    PENDING = "processing", _("Processing")
     SUCCESS = "success", _("Success")
     FAILED = "failed", _("Failed")
     RETRYING = "retrying", _("Retrying")
