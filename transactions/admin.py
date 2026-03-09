@@ -52,7 +52,7 @@ class TransactionAdmin(admin.ModelAdmin):
         "updated_at",
         "completed_at",
     )
-
+    ordering = ("-created_at",)
     inlines = [TransactionAttemptInline]
 
 
@@ -76,3 +76,4 @@ class TransactionAttemptAdmin(admin.ModelAdmin):
         "provider_reference",
         "transaction__transaction_id",
     )
+    ordering = ("-created_at",)

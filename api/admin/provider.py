@@ -13,6 +13,7 @@ class ProviderAPIKeyAdmin(admin.ModelAdmin):
     list_display = ("client", "provider", "is_active", "created_at")
     list_filter = ("provider", "is_active", "created_at")
     search_fields = ("client__merchant__user__email", "provider")
+    ordering = ("-created_at",)
 
 
 class MerchantProviderCredentialInline(admin.StackedInline):
@@ -34,6 +35,7 @@ class ClientProviderAdmin(admin.ModelAdmin):
     list_display = ("client", "provider", "is_active", "created_at")
     list_filter = ("provider", "is_active")
     search_fields = ("client__merchant__name", "provider")
+    ordering = ("-created_at",)
     inlines = [MerchantProviderCredentialInline]
 
 
