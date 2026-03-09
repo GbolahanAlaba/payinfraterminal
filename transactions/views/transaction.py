@@ -61,10 +61,10 @@ class TransactionDetailView(APIView):
         responses={200: TransactionResponseSerializer},
         tags=["Transactions"],
     )
-    def get(self, request, reference):
+    def get(self, request, id):
 
         try:
-            transaction = Transaction.objects.get(reference=reference)
+            transaction = Transaction.objects.get(id=id)
         except Transaction.DoesNotExist:
             return error_response(
                 message="Transaction not found",

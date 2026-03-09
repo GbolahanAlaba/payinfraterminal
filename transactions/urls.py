@@ -4,6 +4,6 @@ from .views import CreateTransactionView, TransactionDetailView, TransactionList
 
 urlpatterns = [
     path("", TransactionListView.as_view(), name="transaction-list"),
-    path("<str:reference>/", TransactionDetailView.as_view(), name="transaction-detail"),
+    path("<uuid:id>/", TransactionDetailView.as_view(), name="transaction-detail"),
     path("transactions/create/", CreateTransactionView.as_view(), name="create-transaction",),
 ]
