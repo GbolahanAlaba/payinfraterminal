@@ -1,4 +1,5 @@
-from django.db.models import Sum
+from django.db.models import Sum,  Count, Q, F, FloatField, ExpressionWrapper
+
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
@@ -46,8 +47,32 @@ class OverviewView(APIView):
             "total_value": total_value,
         }
 
-        performances = ProviderPerformance.objects.all()
-        performance_serializer = ProviderPerformanceSerializer(performances, many=True)
+        # performances = ProviderPerformance.objects.all()
+        # performance_serializer = ProviderPerformanceSerializer(performances, many=True)
+
+        provider_qs = (
+        qs.values("preferred_provider")  # group by provider
+        .annotate(
+            total_transactions=Count("id"),
+            successful_transactions=Count("id", filter=Q(status=STATUS.SUCCESS)),
+            failed_transactions=Count("id", filter=Q(status=STATUS.FAILED)),
+            success_rate=ExpressionWrapper(
+                F("successful_transactions") * 100.0 / F("total_transactions"),
+                output_field=FloatField()
+            )
+        )
+        )
+
+        provider_performance = []
+        for p in provider_qs:
+            provider_performance.append({
+                "provider": p["preferred_provider"],
+                "total_transactions": p["total_transactions"],
+                "successful_transactions": p["successful_transactions"],
+                "failed_transactions": p["failed_transactions"],
+                "success_rate": f"{round(p['success_rate'], 2)}%",
+                "status": "good" if p["success_rate"] >= 95 else "average" if p["success_rate"] >= 80 else "poor"
+            })
 
         # provider = request.query_params.get("provider")
         graph_data = None
@@ -56,7 +81,7 @@ class OverviewView(APIView):
         return success_response(
             data={
                 "transactions": transaction_data,
-                "provider_performance": performance_serializer.data,
+                "provider_performance": provider_performance,
                 "provider_success_graph": graph_data
             },
             message="Overview retrieved successfully",
