@@ -76,4 +76,4 @@ class TransactionAttemptAdmin(admin.ModelAdmin):
         "provider_reference",
         "transaction__transaction_id",
     )
-    ordering = ("-created_at",)
+    ordering = ("-attempted_at",)

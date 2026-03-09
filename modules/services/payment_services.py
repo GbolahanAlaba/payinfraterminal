@@ -46,8 +46,14 @@ class PaymentService:
             "access_code": provider_data.get("access_code")
             or provider_data.get("tx_ref"),
 
-            "reference": provider_data.get("reference")
-            or provider_data.get("tx_ref"),
+            "reference": (
+                provider_data.get("reference")
+                or provider_data.get("tx_ref")
+                or provider_data.get("payment_reference")
+                or raw_data.get("reference")
+                or cleaned_data.get("reference")
+            ),
+
 
             "amount": provider_data.get("amount") or str(amount),
             "currency": provider_data.get("currency") or "NGN",
@@ -103,8 +109,8 @@ class PaymentService:
             metadata={"amount": str(amount)},
         )
 
-        # Use provider's clean_init_data
-        cleaned_data = provider.clean_init_data(init_data)
+        # # Use provider's clean_init_data
+        # cleaned_data = provider.clean_init_data(init_data)
 
         # Return unified response with fallback
         cleaned_data = provider.clean_init_data(init_data)
