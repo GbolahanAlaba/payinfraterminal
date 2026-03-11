@@ -1,8 +1,9 @@
 from django.db.models import Sum,  Count, Q, F, FloatField, ExpressionWrapper
-
+from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 
 from transactions.models import Transaction, STATUS
 from analytics.models import ProviderPerformance
@@ -87,6 +88,71 @@ class OverviewView(APIView):
             message="Overview retrieved successfully",
             status_code=status.HTTP_200_OK
         )
+
+class OverviewGraphView(APIView):
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="year",
+                description="Year to filter monthly data (e.g., 2026). Defaults to current year if not provided.",
+                required=False,
+                type=int
+            ),
+        ],
+        examples=[
+            OpenApiExample(
+                "Sample Response",
+                value={
+                    "year": 2026,
+                    "monthly_data": [
+                        {
+                            "month": "January",
+                            "month_start": "2026-01-01T00:00:00Z",
+                            "total_transactions": 12,
+                            "successful_transactions": 10,
+                            "success_rate": 83.33
+                        },
+                        {
+                            "month": "February",
+                            "month_start": "2026-02-01T00:00:00Z",
+                            "total_transactions": 0,
+                            "successful_transactions": 0,
+                            "success_rate": 0
+                        }
+                    ]
+                },
+                response_only=True,
+            )
+        ],
+        responses={
+            200: dict,
+            400: {"error": "Invalid year parameter"}
+        },
+        description="Retrieve monthly transaction success rate for a given year. Includes all 12 months even if there are zero transactions."
+    )
+    def get(self, request):
+        year_param = request.query_params.get("year")
+        try:
+            year = int(year_param) if year_param else None
+        except ValueError:
+            return error_response(
+                status_code=400,
+                message="Invalid year value",
+                errors="Invalid year value",
+            )
+        
+        monthly_data = TransactionUtils.success_rate_per_month(year)
+
+        now = timezone.now()
+        year_d = int(year_param) if year_param else now.year
+        return success_response(
+            status_code=200,
+            message=f"Graph data for {year_d}",
+            data=monthly_data,
+        )
+
+
 
 
 class TransactionAnalyticsAPIView(APIView):
