@@ -104,7 +104,8 @@ class OverviewGraphView(APIView):
             OpenApiExample(
                 "Sample Response",
                 value={
-                    "year": 2026,
+                    "status": 200,
+                    "message": "Graph data for 2026",
                     "monthly_data": [
                         {
                             "month": "January",
