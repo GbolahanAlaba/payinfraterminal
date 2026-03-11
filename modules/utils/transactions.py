@@ -1,60 +1,48 @@
 from django.db.models import Count, Q
-from django.db.models.functions import TruncHour
-from datetime import timedelta
+from django.db.models.functions import TruncMonth
 from django.utils import timezone
-from transactions.models import Transaction, TransactionAttempt
-
+from datetime import datetime
+from calendar import monthrange
+from transactions.models import Transaction
 
 class TransactionUtils:
 
     @staticmethod
-    # def success_rate_per_4hours(provider_name):
-    def success_rate_per_4hours():
+    def success_rate_per_month(year=None):
+        """
+        Returns success rate per month for a given year.
+        Includes all months even if there are zero transactions.
+        """
         now = timezone.now()
-        start = now - timedelta(days=1)
-        
+        if year is None:
+            year = now.year
+
+        # Query transactions for the year, grouped by month
         qs = Transaction.objects.filter(
-            created_at__gte=start
+            created_at__year=year
         ).annotate(
-            hour=TruncHour('created_at')
-        ).values('hour').annotate(
+            month=TruncMonth('created_at')
+        ).values('month').annotate(
             total=Count('id'),
             success=Count('id', filter=Q(status='success'))
-        ).order_by('hour')
-        
+        )
+
+        # Convert queryset to dict for quick lookup
+        month_data = {row['month'].month: row for row in qs}
+
+        # Prepare output for all 12 months
         data = []
-        interval_start = None
-        interval_total = 0
-        interval_success = 0
-        
-        for i, row in enumerate(qs):
-            hour = row['hour']
-            if interval_start is None:
-                interval_start = hour
-            # Check if current hour is 4 hours after interval start
-            if (hour - interval_start).total_seconds() >= 4*3600:
-                # save previous interval
-                success_rate = (interval_success/interval_total*100) if interval_total else 0
-                data.append({
-                    "interval_start": interval_start,
-                    "interval_end": hour,
-                    "success_rate": round(success_rate, 2)
-                })
-                # reset counters
-                interval_start = hour
-                interval_total = row['total']
-                interval_success = row['success']
-            else:
-                interval_total += row['total']
-                interval_success += row['success']
-        
-        # Last interval
-        if interval_total:
-            success_rate = (interval_success/interval_total*100)
+        for m in range(1, 13):
+            row = month_data.get(m)
+            total = row['total'] if row else 0
+            success = row['success'] if row else 0
+            success_rate = (success / total * 100) if total else 0
             data.append({
-                "interval_start": interval_start,
-                "interval_end": hour,
+                "month": datetime(year, m, 1).strftime("%B"),
+                "month_start": datetime(year, m, 1),
+                "total_transactions": total,
+                "successful_transactions": success,
                 "success_rate": round(success_rate, 2)
             })
-        
+
         return data

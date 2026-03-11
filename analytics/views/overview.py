@@ -76,7 +76,7 @@ class OverviewView(APIView):
 
         # provider = request.query_params.get("provider")
         graph_data = None
-        graph_data = TransactionUtils.success_rate_per_4hours()
+        graph_data = TransactionUtils.success_rate_per_month(year=None)
 
         return success_response(
             data={
