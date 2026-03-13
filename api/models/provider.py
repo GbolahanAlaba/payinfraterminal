@@ -9,7 +9,10 @@ from .client import APIClient
 
 class PaymentProvider(models.TextChoices):
     PAYSTACK = "paystack", _("Paystack")
+    PAYPAL = "paypal", _("Paypal")
     FLUTTERWAVE = "flutterwave", _("Flutterwave")
+    FINCRA = "fincra", _("Fincra"),
+    NOMBA = "nomba", _("Nomba")
     OPAY = "opay", _("OPay")
 
 

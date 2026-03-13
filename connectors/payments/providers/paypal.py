@@ -36,20 +36,19 @@ class PayPalProvider(BasePaymentProvider):
     Both are parsed transparently so the routing engine requires no changes.
     """
 
-    def __init__(self, secret_key: str, callback_url: str = None):
-        """
-        Args:
-            secret_key:    PayPal credentials encoded as JSON or pipe-delimited
-                           "client_id|client_secret" string.
-            callback_url:  Return URL after buyer approves / cancels on PayPal.
-        """
+    def __init__(self, secret_key: dict | str, callback_url: str = None):
         if not secret_key:
-            raise ValueError("PayPal credentials (secret_key) are required.")
+            raise ValueError("PayPal credentials are required.")
 
-        # ------------------------------------------------------------------
-        # Parse client_id / client_secret from the encoded secret_key
-        # ------------------------------------------------------------------
-        client_id, client_secret = self._parse_credentials(secret_key)
+        if isinstance(secret_key, dict):
+            client_id = secret_key.get("client_id")
+            client_secret = secret_key.get("secret_key")
+        else:
+            # fallback for pipe-delimited string
+            client_id, client_secret = secret_key.split("|", 1)
+
+        if not client_id or not client_secret:
+            raise ValueError("PayPal requires both client_id and secret_key in credentials.")
 
         paypal_settings = getattr(settings, "PAYMENT_PROVIDER", {}).get("PAYPAL", {})
         default_callback = paypal_settings.get("callback_url")
@@ -62,8 +61,6 @@ class PayPalProvider(BasePaymentProvider):
         self.client_id = client_id
         self.client_secret = client_secret
 
-        # Sandbox detection: PayPal sandbox client IDs start with "AX" when using
-        # test credentials, but the most reliable signal is an explicit setting.
         paypal_env = paypal_settings.get("environment", "sandbox").lower()
         self.is_sandbox = paypal_env != "live"
 
@@ -75,47 +72,6 @@ class PayPalProvider(BasePaymentProvider):
             )
         )
         self.name = "paypal"
-
-    # ------------------------------------------------------------------
-    # Credential parsing
-    # ------------------------------------------------------------------
-
-    @staticmethod
-    def _parse_credentials(secret_key: str):
-        """
-        Extract (client_id, client_secret) from secret_key.
-
-        Supports:
-          - JSON string: '{"client_id": "AX...", "client_secret": "EK..."}'
-          - Pipe-delimited: "AX...|EK..."
-          - Direct client_id only (legacy, will raise)
-        """
-        import json
-
-        secret_key = secret_key.strip()
-
-        # Try JSON first
-        if secret_key.startswith("{"):
-            try:
-                data = json.loads(secret_key)
-                client_id = data.get("client_id") or data.get("PAYPAL_CLIENT_ID")
-                client_secret = data.get("client_secret") or data.get("PAYPAL_CLIENT_SECRET")
-                if client_id and client_secret:
-                    return client_id, client_secret
-            except json.JSONDecodeError:
-                pass
-
-        # Try pipe-delimited
-        if "|" in secret_key:
-            parts = secret_key.split("|", 1)
-            if len(parts) == 2 and parts[0] and parts[1]:
-                return parts[0].strip(), parts[1].strip()
-
-        raise ValueError(
-            "PayPal secret_key must be a JSON string "
-            '\'{"client_id": "...", "client_secret": "..."}\' '
-            "or pipe-delimited 'client_id|client_secret'."
-        )
 
     # ------------------------------------------------------------------
     # initialize_transaction — mirrors FlutterwaveProvider
