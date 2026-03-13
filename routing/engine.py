@@ -1,6 +1,6 @@
 import logging
 
-from modules.services.payment_services import PaymentService
+from connectors.payments.services.payment_services import PaymentService
 from api.models import ClientProvider, ClientProviderCredential
 
 
@@ -48,10 +48,10 @@ class PaymentRouteEngine:
             client_provider_credentials = client_provider.credentials
             if client_provider_credentials.is_encrypted:
                 credentials = client_provider_credentials.decrypt_credentials()
-                credential = credentials #.get("secret_key") # To be used for paystack and flutterwave. Adjust if you have different keys for different providers
+                credential = credentials
             else:
                 credentials = client_provider_credentials.credentials
-                credential = credentials #.get("secret_key") # To be used for paystack and flutterwave. Adjust if you have different keys for different providers
+                credential = credentials
 
             return credential
         except ClientProviderCredential.DoesNotExist:
