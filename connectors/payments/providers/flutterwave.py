@@ -28,11 +28,12 @@ class FlutterwaveProvider(BasePaymentProvider):
         if not self.callback_url:
             raise ValueError("Flutterwave callback_url must be configured.")
 
-        self.secret_key = secret_key
-        self.is_sandbox = secret_key.startswith("FLWSECK_TEST")
+        # self.secret_key = secret_key
+        self.secret_key = secret_key.get("secret_key") if isinstance(secret_key, dict) else secret_key
+        self.is_sandbox = self.secret_key.startswith("FLWSECK_TEST")
 
         super().__init__(api_client=FlutterwaveClient(
-            secret_key=secret_key,
+            secret_key=self.secret_key,
             is_sandbox=self.is_sandbox
         ))
 

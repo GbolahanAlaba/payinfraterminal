@@ -22,12 +22,13 @@ class PaystackProvider(BasePaymentProvider):
         if not secret_key:
             raise ValueError("Paystack secret key is required.")
 
-        self.secret_key = secret_key
+        # self.secret_key = secret_key
+        self.secret_key = secret_key.get("secret_key") if isinstance(secret_key, dict) else secret_key
         self.callback_url = callback_url or getattr(
             settings, "PAYSTACK_CALLBACK_URL", None
         )
 
-        super().__init__(api_client=PaystackClient(secret_key=secret_key))
+        super().__init__(api_client=PaystackClient(secret_key=self.secret_key))
         self.name = "paystack"
 
     # ------------------------------------------------------------------

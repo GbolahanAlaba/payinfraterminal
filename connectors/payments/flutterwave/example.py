@@ -6,12 +6,11 @@ with the TITAA backend payment system.
 """
 
 import uuid
-from titaa.services.payments.flutterwave import FlutterwaveClient
-from titaa.services.payments.flutterwave.exceptions import (
+from .exceptions import (
     FlutterwaveAPIException,
     FlutterwaveValidationException,
 )
-from titaa.payments.providers.flutterwave import FlutterwaveProvider
+from providers.flutterwave import FlutterwaveProvider
 
 
 def example_flutterwave_usage():

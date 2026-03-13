@@ -1,43 +1,66 @@
 """
-PayPal integration package.
+PayPal REST API Integration
 
-Public API::
+This package provides a complete integration with PayPal's Orders v2 API,
+matching the exact structure of the flutterwave/ and paystack/ connectors
+so it slots directly into the payment orchestration platform.
 
-    from paypal import paypal_client
-    from paypal.base import Money, OrderItem, OrderRequest
-    from paypal.exceptions import PayPalError, PayPalAuthError, PayPalOrderError
-    from paypal.webhook import register, dispatch
+Main Components:
+    PayPalClient:                 Main client — exposes .payments and .refunds
+    PayPalPayments:               Create orders, verify, capture, authorize
+    PayPalRefunds:                Refund captures, void authorizations
+    PayPalAPIException:           Exception hierarchy for error handling
+
+Usage:
+    from connectors.payments.paypal import PayPalClient
+
+    client = PayPalClient(
+        client_id="AXxx...",
+        client_secret="EKxx...",
+        is_sandbox=True,
+    )
+
+    # Create a payment order
+    order = client.payments.create_payment(
+        tx_ref="greatman009",
+        amount="80.00",
+        currency="USD",
+        redirect_url="https://payflow.com/payments/",
+        customer={"email": "customer@example.com"},
+    )
+
+    # Get the approval URL to redirect the buyer
+    approve_url = next(
+        link["href"] for link in order["links"] if link["rel"] == "approve"
+    )
 """
-from .client import PayPalClient, paypal_client
-from .base import Money, OrderItem, OrderRequest
+
+from .paypal import PayPalClient
+from .payments import PayPalPayments
+from .refunds import PayPalRefunds
 from .exceptions import (
-    PayPalError,
-    PayPalAuthError,
-    PayPalOrderError,
-    PayPalRefundError,
-    PayPalTransactionError,
-    PayPalWebhookError,
-    PayPalRetryableError,
+    PayPalException,
+    PayPalAPIException,
+    PayPalAuthenticationException,
+    PayPalValidationException,
+    PayPalNotFoundException,
+    PayPalRateLimitException,
+    PayPalNetworkException,
+    PayPalWebhookException,
 )
-from .webhook import register, dispatch
 
 __all__ = [
-    # Client
     "PayPalClient",
-    "paypal_client",
-    # Data models
-    "Money",
-    "OrderItem",
-    "OrderRequest",
-    # Exceptions
-    "PayPalError",
-    "PayPalAuthError",
-    "PayPalOrderError",
-    "PayPalRefundError",
-    "PayPalTransactionError",
-    "PayPalWebhookError",
-    "PayPalRetryableError",
-    # Webhook
-    "register",
-    "dispatch",
+    "PayPalPayments",
+    "PayPalRefunds",
+    "PayPalException",
+    "PayPalAPIException",
+    "PayPalAuthenticationException",
+    "PayPalValidationException",
+    "PayPalNotFoundException",
+    "PayPalRateLimitException",
+    "PayPalNetworkException",
+    "PayPalWebhookException",
 ]
+
+__version__ = "1.0.0"

@@ -1,12 +1,12 @@
 from django.db import transaction
 from connectors.payments.providers.paystack import PaystackProvider
 from connectors.payments.providers.flutterwave import FlutterwaveProvider
-
+from connectors.payments.providers.paypal import PayPalProvider
 def load_payment_providers():
     """
     Dynamically load payment providers based on database entries.
     """
-    providers = ['paystack', 'flutterwave', 'fincra']  # This should ideally come from the database
+    providers = ['paystack', 'flutterwave', 'paypal', 'fincra']  # This should ideally come from the database
     provider_map = {}
 
     if providers and "paystack" in providers:
@@ -14,6 +14,9 @@ def load_payment_providers():
 
     if providers and "flutterwave" in providers:
         provider_map["flutterwave"] = FlutterwaveProvider
+
+    if providers and "paypal" in providers:
+        provider_map["paypal"] = PayPalProvider
     #
     # if providers.filter(name__iexact="fincra").exists():
     #     provider_map["fincra"] = FincraProvider
