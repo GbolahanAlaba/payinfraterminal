@@ -128,13 +128,13 @@ class PaymentService:
         return self._unify_response(cleaned_data, raw_data, amount)
 
     
-    def verify_payment(self, reference: str, amount: Decimal):
-        """Manual verification with unified response."""
-        provider = self.get_provider_instance()
-        raw_data = provider.verify_transaction(reference)
+    # def verify_payment(self, reference: str, amount: Decimal):
+    #     """Manual verification with unified response."""
+    #     provider = self.get_provider_instance()
+    #     raw_data = provider.verify_transaction(reference)
 
-        # Use provider's clean_init_data if available
-        cleaned_data = provider.clean_init_data(raw_data)
+    #     # Use provider's clean_init_data if available
+    #     cleaned_data = provider.clean_init_data(raw_data)
 
-        return self._unify_response(cleaned_data, raw_data)
+    #     return self._unify_response(cleaned_data, raw_data, amount)
 

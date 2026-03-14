@@ -26,7 +26,8 @@ class FlutterwaveProvider(BasePaymentProvider):
         self.callback_url = callback_url or default_callback
 
         if not self.callback_url:
-            raise ValueError("Flutterwave callback_url must be configured.")
+            self.callback_url = ""
+            # raise ValueError("Flutterwave callback_url must be configured.")
 
         # self.secret_key = secret_key
         self.secret_key = secret_key.get("secret_key") if isinstance(secret_key, dict) else secret_key

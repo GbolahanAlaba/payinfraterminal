@@ -51,6 +51,15 @@ def verify_processing_transactions(self):
             log.info(f"Verification response for {tx.reference}: {response}")
 
             provider_status = response["data"].get("status")
+
+            if provider_status in [True, "success", "Successful"]:
+                provider_status = "success"
+
+            elif provider_status in [False, "failed"]:
+                provider_status = "failed"
+
+            else:
+                provider_status = "pending"
             message = response.get("message", "")
 
             with db_transaction.atomic():
