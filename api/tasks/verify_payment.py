@@ -4,19 +4,28 @@ from celery import shared_task
 from django.utils import timezone
 from django.db import transaction as db_transaction
 
-from transactions.models import Transaction, STATUS
+from transactions.models import Transaction, STATUS, TRANSACTION_TYPE
 from connectors.payments.services.payment_services import PaymentService
 from routing.engine import PaymentRouteEngine
 
 log = logging.getLogger(__name__)
 
 
-@shared_task(bind=True, autoretry_for=(Exception,), retry_backoff=True, retry_kwargs={'max_retries': 3})
+@shared_task(bind=True, autoretry_for=(Exception,), retry_backoff=True, retry_kwargs={"max_retries": 3})
 def verify_processing_transactions(self):
 
-    processing_transactions = Transaction.objects.filter(
-        status=STATUS.PROCESSING
-    ).only("id", "reference", "preferred_provider")
+    processing_transactions = (
+        Transaction.objects
+        .filter(status=STATUS.PROCESSING, transaction_type=TRANSACTION_TYPE.COLLECTION)
+        .select_related("merchant", "api_client")
+        .only(
+            "id",
+            "reference",
+            "preferred_provider",
+            "api_client",
+            "merchant"
+        )
+    )
 
     for tx in processing_transactions:
 
@@ -24,36 +33,42 @@ def verify_processing_transactions(self):
             continue
 
         try:
-            api_client = tx.merchant.api_clients.first()
-            engine = PaymentRouteEngine(client=api_client)
-            credentials = engine.get_provider_credentials(tx.preferred_provider)
+
+            engine = PaymentRouteEngine(client=tx.api_client)
+
+            credentials = engine.get_provider_credentials(
+                tx.preferred_provider)
+            
+            log.info(f"credentials {credentials}")
+
             service = PaymentService(
                 provider_name=tx.preferred_provider,
                 secret_key=credentials["secret_key"]
             )
-            response = service.verify_payment(tx.reference)
-            log.info({f"VERIFICATION RESPONSE: {response}"})
 
-            status = response.get("status")
+            response = service.verify_payment(tx.reference, tx.amount)
+
+            log.info(f"Verification response for {tx.reference}: {response}")
+
+            provider_status = response["data"].get("status")
             message = response.get("message", "")
 
             with db_transaction.atomic():
 
-                if status == "success":
-
+                if provider_status == "success":
                     tx.status = STATUS.SUCCESS
                     tx.completed_at = timezone.now()
 
-                elif status == "failed":
+                elif provider_status in ["failed", "abandoned"]:
 
                     tx.status = STATUS.FAILED
                     tx.completed_at = timezone.now()
 
                 else:
-                    # still pending or processing
                     continue
 
                 tx.message = message
+
                 tx.save(update_fields=[
                     "status",
                     "message",
@@ -62,5 +77,7 @@ def verify_processing_transactions(self):
                 ])
 
         except Exception as e:
-            # optionally log error
-            print(f"Verification failed for {tx.reference}: {str(e)}")
+
+            log.error(
+                f"Verification failed for {tx.reference}: {str(e)}"
+            )

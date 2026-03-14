@@ -3,6 +3,7 @@ import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from merchants.models import Merchant
+from api.models import APIClient
 
 class STATUS(models.TextChoices):
     PROCESSING = "processing", _("Processing")
@@ -37,7 +38,8 @@ class Transaction(models.Model):
         choices=TRANSACTION_SOURCE.choices,
         default=TRANSACTION_SOURCE.API
     )
-    merchant = models.ForeignKey(Merchant, on_delete=models.CASCADE)
+    merchant = models.ForeignKey(Merchant, on_delete=models.CASCADE, related_name='merchant_transactions')
+    api_client = models.ForeignKey(APIClient, on_delete=models.CASCADE, null=True, blank=True, related_name='apiclient_transactions')
     customer_email = models.EmailField(blank=True, null=True)
     customer_phone = models.CharField(max_length=20, blank=True, null=True)
 
@@ -84,6 +86,7 @@ class Transaction(models.Model):
 
     def create_transaction(
         merchant,
+        api_client,
         amount,
         reference,
         customer_email=None,
@@ -104,6 +107,7 @@ class Transaction(models.Model):
         transaction = Transaction.objects.create(
             transaction_id=Transaction.generate_transaction_id(),
             merchant=merchant,
+            api_client=api_client,
             amount=amount,
             reference=reference,
             customer_email=customer_email,

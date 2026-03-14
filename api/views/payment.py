@@ -111,6 +111,7 @@ class ProcessPaymentAPIView(APIView):
             reference = payment_response["data"].get("reference")
             transaction = Transaction.create_transaction(
                 merchant=merchant,
+                api_client=api_client,
                 amount=amount,
                 reference=reference,
                 customer_email=email,
@@ -150,6 +151,65 @@ class ProcessPaymentAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+
+class VerifyPaymentView(APIView):
+
+    def get(self, request, reference):
+        from connectors.payments.services.payment_services import PaymentService
+
+        try:
+            # api_client = authenticate_client(request)
+            # engine = PaymentRouteEngine(client=api_client)
+            # merchant = api_client.merchant
+
+            tx = Transaction.objects.select_related(
+                "merchant", "api_client"
+            ).get(reference=reference)
+
+            engine = PaymentRouteEngine(client=tx.api_client)
+
+            credentials = engine.get_provider_credentials(
+                tx.preferred_provider
+            )
+
+            service = PaymentService(
+                provider_name=tx.preferred_provider,
+                secret_key=credentials["secret_key"]
+            )
+
+            response = service.verify_payment(
+                reference=reference,
+                amount=tx.amount
+            )
+
+            return Response(
+                {
+                    "status": "success",
+                    "message": "Verification completed",
+                    "data": response
+                },
+                status=status.HTTP_200_OK
+            )
+
+        except Transaction.DoesNotExist:
+
+            return Response(
+                {
+                    "status": "error",
+                    "message": "Transaction not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        except Exception as e:
+
+            return Response(
+                {
+                    "status": "error",
+                    "message": str(e)
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 # class ProcessPaymentAPIView(APIView):
 #     authentication_classes = []  # handled manually

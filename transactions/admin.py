@@ -22,6 +22,7 @@ class TransactionAdmin(admin.ModelAdmin):
     list_display = (
         "transaction_id",
         "merchant",
+        "api_client",
         "amount",
         "currency",
         "status",
@@ -48,6 +49,8 @@ class TransactionAdmin(admin.ModelAdmin):
 
     readonly_fields = (
         "id",
+        "merchant",
+        "api_client",
         "created_at",
         "updated_at",
         "completed_at",
