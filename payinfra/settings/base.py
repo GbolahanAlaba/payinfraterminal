@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     # packages
     "debug_toolbar",
     "drf_spectacular",
+    "celery",
 ]
 
 MIDDLEWARE = [
@@ -315,4 +316,3 @@ LOGGING = {
         },
     }
 }
-

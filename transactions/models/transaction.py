@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from merchants.models import Merchant
 
 class STATUS(models.TextChoices):
-    PENDING = "processing", _("Processing")
+    PROCESSING = "processing", _("Processing")
     SUCCESS = "success", _("Success")
     FAILED = "failed", _("Failed")
     RETRYING = "retrying", _("Retrying")
@@ -54,7 +54,7 @@ class Transaction(models.Model):
 
     reference = models.CharField(max_length=100, null=True, blank=True)
     
-    status = models.CharField(max_length=20, choices=STATUS.choices, default=STATUS.PENDING)
+    status = models.CharField(max_length=20, choices=STATUS.choices, default=STATUS.PROCESSING)
     
     preferred_provider = models.CharField(max_length=50, blank=True, null=True)
     final_provider = models.CharField(max_length=50, blank=True, null=True)
@@ -129,7 +129,7 @@ class TransactionAttempt(models.Model):
     provider = models.CharField(max_length=50)
     provider_reference = models.CharField(max_length=50, blank=True, null=True)
     
-    status = models.CharField(max_length=20, choices=STATUS.choices, default=STATUS.PENDING)
+    status = models.CharField(max_length=20, choices=STATUS.choices, default=STATUS.PROCESSING)
     
     fee = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     response = models.JSONField(default=dict, blank=True)
