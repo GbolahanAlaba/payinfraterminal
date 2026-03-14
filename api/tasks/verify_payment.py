@@ -39,7 +39,7 @@ def verify_processing_transactions(self):
             credentials = engine.get_provider_credentials(
                 tx.preferred_provider)
             
-            log.info(f"credentials {credentials}")
+            # log.info(f"credentials {credentials}")
 
             service = PaymentService(
                 provider_name=tx.preferred_provider,
@@ -48,28 +48,38 @@ def verify_processing_transactions(self):
 
             response = service.verify_payment(tx.reference, tx.amount)
 
-            log.info(f"Verification response for {tx.reference}: {response}")
+            # log.info(f"Verification response for {tx.reference}: {response}")
 
-            provider_status = response["data"].get("status")
+            if tx.preferred_provider == "paystack":
+                top_data = response.get("data", {})        # wrapper
+                inner_data = top_data.get("data", {})      # actual transaction payload
 
-            if provider_status in [True, "success", "Successful"]:
-                provider_status = "success"
+                authorization = inner_data.get("authorization")  # may exist or None
 
-            elif provider_status in [False, "failed"]:
-                provider_status = "failed"
+                # Get channel safely
+                channel = authorization.get("channel") if authorization else inner_data.get("channel")
 
-            else:
-                provider_status = "pending"
-            message = response.get("message", "")
+                log.info(f"Authorization: {authorization}")
+                log.info(f"Channel: {channel}")
+                if provider_status in [True, "success", "Successful"]:
+                    provider_status = "success"
+
+                elif provider_status in [False, "failed"]:
+                    provider_status = "failed"
+
+                else:
+                    provider_status = "processing"
+                message = response.get("message", "")
 
             with db_transaction.atomic():
 
                 if provider_status == "success":
                     tx.status = STATUS.SUCCESS
+                    tx.channel = channel
+                    tx.metadata = top_data
                     tx.completed_at = timezone.now()
 
                 elif provider_status in ["failed", "abandoned"]:
-
                     tx.status = STATUS.FAILED
                     tx.completed_at = timezone.now()
 
@@ -80,10 +90,13 @@ def verify_processing_transactions(self):
 
                 tx.save(update_fields=[
                     "status",
+                    "channel",
+                    "metadata",
                     "message",
                     "completed_at",
                     "updated_at"
                 ])
+                log.info(f"VERIFICATION COMPLETED FOR {tx.merchant} | REF {tx.reference}")
 
         except Exception as e:
 
