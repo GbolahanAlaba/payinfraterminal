@@ -8,6 +8,7 @@ from rest_framework import status
 from django.db import transaction as db_transaction
 from transactions.models import Transaction, STATUS
 from routing.engine import PaymentRouteEngine
+from modules.utils.api.auth import authenticate_client
 from modules.core.response import success_response, error_response
 from connectors.payments.services.payment_services import PaymentService
 
@@ -16,6 +17,7 @@ log = logging.getLogger(__name__)
 
 class VerifyTransactionView(APIView):
     permission_classes = []
+    
 
     def __paystack__(self, reference, credentials):
 
@@ -80,12 +82,14 @@ class VerifyTransactionView(APIView):
 
 
     def get(self, request, reference):
+        api_client = authenticate_client(request)
+
         try:
             tx = Transaction.objects.select_related(
                 "merchant", "api_client"
             ).get(reference=reference)
 
-            engine = PaymentRouteEngine(client=tx.api_client)
+            engine = PaymentRouteEngine(client=api_client)
 
             credentials = engine.get_provider_credentials(
                 tx.preferred_provider

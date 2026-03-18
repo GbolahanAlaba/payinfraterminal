@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.db import transaction as db_transaction
 
 from transactions.models import Transaction, STATUS, TRANSACTION_TYPE
+from api.views import VerifyTransactionView
 from connectors.payments.services.payment_services import PaymentService
 from routing.engine import PaymentRouteEngine
 
@@ -40,48 +41,33 @@ def verify_processing_transactions(self):
         try:
 
             engine = PaymentRouteEngine(client=tx.api_client)
-
             credentials = engine.get_provider_credentials(
                 tx.preferred_provider)
             
-            # log.info(f"credentials {credentials}")
-
-            service = PaymentService(
-                provider_name=tx.preferred_provider,
-                secret_key=credentials["secret_key"]
-            )
-
-            response = service.verify_payment(tx.reference)
-
-            # log.info(f"Verification response for {tx.reference}: {response}")
-
             if tx.preferred_provider == "paystack":
-                top_data = response.get("data", {})        # wrapper
-                inner_data = top_data.get("data", {})     # actual transaction payload
-                provider_status = inner_data.get("status", {})
-                authorization = inner_data.get("authorization")  # may exist or None
+                paystack_data = VerifyTransactionView.__paystack__(self, tx.reference, credentials)
 
-                # Get channel safely
-                channel = authorization.get("channel") if authorization else inner_data.get("channel")
+                metadata = paystack_data["metadata"]
+                provider_status = paystack_data["provider_status"]
+                channel = paystack_data["channel"]
+                message = paystack_data["message"]
+                response = paystack_data["response"]
 
-                log.info(f"Authorization: {authorization}")
-                log.info(f"Channel: {channel}")
-                if provider_status in [True, "success", "Successful"]:
-                    provider_status = "success"
+            if tx.preferred_provider == "flutterwave":
+                flutterwave_data = VerifyTransactionView.__flutterwave__(self, tx.reference, credentials)
 
-                elif provider_status in [False, "failed"]:
-                    provider_status = "failed"
-
-                else:
-                    provider_status = "processing"
-                message = response.get("message", "")
+                metadata = flutterwave_data["metadata"]
+                provider_status = flutterwave_data["provider_status"]
+                channel = flutterwave_data["channel"]
+                message = flutterwave_data["message"]
+                response = flutterwave_data["response"]
 
             with db_transaction.atomic():
 
                 if provider_status == "success":
+                    tx.metadata = metadata
                     tx.status = STATUS.SUCCESS
                     tx.channel = channel
-                    tx.metadata = top_data
                     tx.completed_at = timezone.now()
 
                 elif provider_status in ["failed", "abandoned"]:
@@ -108,3 +94,4 @@ def verify_processing_transactions(self):
             log.error(
                 f"Verification failed for {tx.reference}: {str(e)}"
             )
+
