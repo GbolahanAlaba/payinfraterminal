@@ -26,6 +26,29 @@ class NombaProvider(BaseProvider):
         )
         
         self.name = "Nomba"
+
+    def initialize_transaction(
+        self,
+        amount: str,
+        email: str,
+        currency: str = "NGN",
+        reference: str = None,
+        allowed_payment_methods: list = None,
+        tokenize_card: bool = False,
+        callback_url: str = None
+    ) -> dict:
+        return self.api_client.transaction.initialize_transaction(
+            email=email,
+            amount=amount,
+            currency=currency,
+            reference=reference or str(uuid.uuid4()),
+            callback_url=self.callback_url,
+            account_id=self.account_id,
+            allowed_payment_methods=allowed_payment_methods or ["Card", "Transfer"],
+            tokenize_card=tokenize_card,
+        )
+
+
     # =========================
     # Airtime & Data
     # =========================
