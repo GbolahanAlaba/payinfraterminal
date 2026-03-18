@@ -2,6 +2,7 @@ from django.db import transaction
 from connectors.payments.providers.paystack import PaystackProvider
 from connectors.payments.providers.flutterwave import FlutterwaveProvider
 from connectors.payments.providers.paypal import PayPalProvider
+from connectors.payments.providers.nomba import NombaProvider
 def load_payment_providers():
     """
     Dynamically load payment providers based on database entries.
@@ -14,6 +15,9 @@ def load_payment_providers():
 
     if providers and "flutterwave" in providers:
         provider_map["flutterwave"] = FlutterwaveProvider
+
+    if providers and "nomba" in providers:
+        provider_map["nomba"] = NombaProvider
 
     if providers and "paypal" in providers:
         provider_map["paypal"] = PayPalProvider

@@ -1,8 +1,8 @@
 # modules/payments/nomba/client.py
 
-from payments.nomba.bills import Bills
-from payments.nomba.transfers import Transfers
-from payments.nomba.transactions import Transactions
+from connectors.payments.nomba.bills import Bills
+from connectors.payments.nomba.transfers import Transfers
+from connectors.payments.nomba.transactions import Transactions
 
 
 class NombaClient:

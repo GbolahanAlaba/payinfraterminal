@@ -18,12 +18,12 @@ class PaymentRouteEngine:
         currency: str | None,
         email: str,
         reference: str | None = None,
-        secret_key: str,
+        credentials: str,
         callback_url: str,
     ):
         service = PaymentService(
             provider_name=provider,
-            secret_key=secret_key,
+            secret_key=credentials,
             callback_url=callback_url,
         )
         return service.initialize_payment(

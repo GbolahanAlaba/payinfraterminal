@@ -1,8 +1,8 @@
 import logging
 import uuid
 from typing import Any
-from payments.providers.base import BaseProvider
-from payments.nomba.nomba import NombaClient
+from connectors.payments.providers.base import BaseProvider
+from connectors.payments.nomba.nomba import NombaClient
 from modules.utils.utils import ServiceProvidersEnvironment
 
 log = logging.getLogger("my_logger")

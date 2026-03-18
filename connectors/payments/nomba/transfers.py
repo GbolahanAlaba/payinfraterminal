@@ -1,6 +1,6 @@
 # modules/payments/nomba/transfers.py
 
-from payments.nomba.base import NombaBase
+from connectors.payments.nomba.base import NombaBase
 
 
 class Transfers(NombaBase):

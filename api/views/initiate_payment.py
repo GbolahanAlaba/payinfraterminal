@@ -94,7 +94,7 @@ class ProcessPaymentAPIView(APIView):
                 currency=currency,
                 email=email,
                 reference=reference,
-                secret_key=credentials,
+                credentials=credentials,
                 callback_url=callback_url,
             )
 
