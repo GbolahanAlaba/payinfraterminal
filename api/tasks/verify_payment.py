@@ -11,6 +11,11 @@ from routing.engine import PaymentRouteEngine
 log = logging.getLogger(__name__)
 
 
+
+def verify_paystack():
+
+    pass
+
 @shared_task(bind=True, autoretry_for=(Exception,), retry_backoff=True, retry_kwargs={"max_retries": 3})
 def verify_processing_transactions(self):
 
@@ -46,14 +51,14 @@ def verify_processing_transactions(self):
                 secret_key=credentials["secret_key"]
             )
 
-            response = service.verify_payment(tx.reference, tx.amount)
+            response = service.verify_payment(tx.reference)
 
             # log.info(f"Verification response for {tx.reference}: {response}")
 
             if tx.preferred_provider == "paystack":
                 top_data = response.get("data", {})        # wrapper
-                inner_data = top_data.get("data", {})      # actual transaction payload
-
+                inner_data = top_data.get("data", {})     # actual transaction payload
+                provider_status = inner_data.get("status", {})
                 authorization = inner_data.get("authorization")  # may exist or None
 
                 # Get channel safely

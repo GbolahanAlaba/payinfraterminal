@@ -152,58 +152,8 @@ class ProcessPaymentAPIView(APIView):
             )
 
 
-class VerifyPaymentView(APIView):
-    permission_classes = []
 
-    def get(self, request, reference):
-        from connectors.payments.services.payment_services import PaymentService
 
-        try:
-
-            tx = Transaction.objects.select_related(
-                "merchant", "api_client"
-            ).get(reference=reference)
-
-            engine = PaymentRouteEngine(client=tx.api_client)
-
-            credentials = engine.get_provider_credentials(
-                tx.preferred_provider
-            )
-
-            service = PaymentService(
-                provider_name=tx.preferred_provider,
-                secret_key=credentials["secret_key"]
-            )
-
-            response = service.verify_payment(
-                reference=reference,
-                amount=tx.amount
-            )
-
-            return success_response(
-                status_code=200,
-                message="Verification requested",
-                data=response
-
-            )
-
-        except Transaction.DoesNotExist:
-            
-            return error_response(
-                status_code=400,
-                message="Transaction not found",
-                errors="Transaction not found"
-            )
-
-        except Exception as e:
-
-            return Response(
-                {
-                    "status": "error",
-                    "message": str(e)
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
 
 # class ProcessPaymentAPIView(APIView):
 #     authentication_classes = []  # handled manually

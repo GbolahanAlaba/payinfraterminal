@@ -66,7 +66,7 @@ class PaystackProvider(BasePaymentProvider):
             "currency": data.get("currency", "NGN"),  # Add currency
             "metadata": data.get("metadata") or {},
             "status": init_data.get("status", "success"),
-            "provider": "paystack"
+            "provider": "paystack",
     
             # "raw": init_data,
         }

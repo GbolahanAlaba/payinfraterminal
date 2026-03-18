@@ -51,6 +51,7 @@ class TransactionAdmin(admin.ModelAdmin):
         "id",
         "merchant",
         "api_client",
+        "reference",
         "created_at",
         "updated_at",
         "completed_at",
