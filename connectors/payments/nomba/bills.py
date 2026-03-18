@@ -5,6 +5,9 @@ from connectors.payments.nomba.base import NombaBase
 
 class Bills(NombaBase):
 
+    def __init__(self, client):
+        super().__init__(client)
+
     def fetch_data_plans(self, telco: str):
         return self.get(f"/bill/data-plan/{telco}")
 

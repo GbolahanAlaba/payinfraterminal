@@ -15,7 +15,7 @@ class PaymentService:
 
     payment_providers = PAYMENT_PROVIDERS
 
-    def __init__(self, provider_name: str, secret_key: str, callback_url=None):
+    def __init__(self, provider_name: str, credentials: str, callback_url=None):
         if not self.payment_providers:
             raise ImproperlyConfigured("No active payment providers configured")
 
@@ -26,13 +26,13 @@ class PaymentService:
             )
 
         self.provider_name = provider_name
-        self.secret_key = secret_key
+        self.credentials = credentials
         self.callback_url = callback_url
         self.provider_class = self.payment_providers[provider_name]
 
     def get_provider_instance(self):
-        """Return provider instance with merchant secret key."""
-        return self.provider_class(secret_key=self.secret_key, callback_url=self.callback_url)
+        """Return provider instance with merchant credentials."""
+        return self.provider_class(credentials=self.credentials, callback_url=self.callback_url)
 
     def _unify_response(self, cleaned_data: dict, raw_data: dict, amount: Decimal) -> dict:
         provider_data = raw_data.get("data", {}).copy()

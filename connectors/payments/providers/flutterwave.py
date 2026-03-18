@@ -16,8 +16,8 @@ class FlutterwaveProvider(BasePaymentProvider):
     Flutterwave Payment Provider Implementation.
     """
 
-    def __init__(self, secret_key: str, callback_url: str = None):
-        if not secret_key:
+    def __init__(self, credentials: str, callback_url: str = None):
+        if not credentials:
             raise ValueError("Flutterwave secret key is required.")
 
         flutterwave_settings = getattr(settings, "PAYMENT_PROVIDER", {}).get("FLUTTERWAVE", {})
@@ -30,7 +30,7 @@ class FlutterwaveProvider(BasePaymentProvider):
             # raise ValueError("Flutterwave callback_url must be configured.")
 
         # self.secret_key = secret_key
-        self.secret_key = secret_key.get("secret_key") if isinstance(secret_key, dict) else secret_key
+        self.secret_key = credentials.get("secret_key") if isinstance(credentials, dict) else credentials
         self.is_sandbox = self.secret_key.startswith("FLWSECK_TEST")
 
         super().__init__(api_client=FlutterwaveClient(

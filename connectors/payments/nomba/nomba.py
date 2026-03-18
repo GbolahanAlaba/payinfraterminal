@@ -10,7 +10,13 @@ class NombaClient:
     Main Nomba Client - Paystack-style aggregator
     """
 
-    def __init__(self):
-        self.bills = Bills()
-        self.transfers = Transfers()
-        self.transactions = Transactions()
+    def __init__(self, credentials: dict):
+        if not credentials:
+            raise ValueError("Credentials required")
+
+        self.credentials = credentials
+
+        # initialize modules
+        self.bills = Bills(self)
+        self.transfers = Transfers(self)
+        self.transactions = Transactions(self)

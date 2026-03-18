@@ -5,6 +5,9 @@ from connectors.payments.nomba.base import NombaBase
 
 class Transfers(NombaBase):
 
+    def __init__(self, client):
+        super().__init__(client)
+
     def banks(self):
         return self.get("/transfers/banks")
 

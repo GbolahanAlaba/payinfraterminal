@@ -23,7 +23,7 @@ class PaymentRouteEngine:
     ):
         service = PaymentService(
             provider_name=provider,
-            secret_key=credentials,
+            credentials=credentials,
             callback_url=callback_url,
         )
         return service.initialize_payment(
@@ -52,6 +52,7 @@ class PaymentRouteEngine:
             else:
                 credentials = client_provider_credentials.credentials
                 credential = credentials
+                log.info(credential)
 
             return credential
         except ClientProviderCredential.DoesNotExist:

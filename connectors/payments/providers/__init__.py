@@ -7,7 +7,7 @@ def load_payment_providers():
     """
     Dynamically load payment providers based on database entries.
     """
-    providers = ['paystack', 'flutterwave', 'paypal', 'fincra']  # This should ideally come from the database
+    providers = ['paystack', 'flutterwave', 'nomba', 'paypal', 'fincra']  # This should ideally come from the database
     provider_map = {}
 
     if providers and "paystack" in providers:

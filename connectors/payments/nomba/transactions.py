@@ -5,6 +5,9 @@ from connectors.payments.nomba.base import NombaBase
 
 class Transactions(NombaBase):
 
+    def __init__(self, client):
+        super().__init__(client)
+
     def fetch(self, merchant_tx_ref: str):
         response = self.get(
             "/transactions/accounts/single",

@@ -3,7 +3,7 @@ import uuid
 from typing import Any
 from connectors.payments.providers.base import BaseProvider
 from connectors.payments.nomba.nomba import NombaClient
-from modules.utils.utils import ServiceProvidersEnvironment
+# from modules.utils.utils import ServiceProvidersEnvironment
 
 log = logging.getLogger("my_logger")
 
@@ -13,16 +13,18 @@ class NombaProvider(BaseProvider):
     Nomba Payment Provider Implementation
     """
 
-    def __init__(self):
+    def __init__(self, credentials: str, callback_url: str = None):
         """
         Initializes Nomba provider using environment-based credentials.
         """
-        env_details = ServiceProvidersEnvironment.get_nomba_environment_details()
 
-        if not env_details:
-            raise ValueError("Nomba environment configuration is missing.")
+        if not credentials:
+            raise ValueError("Nomba credentials is missing.")
 
-        super().__init__(api_client=NombaClient())
+        super().__init__(
+            api_client=NombaClient(credentials=credentials)
+        )
+        
         self.name = "Nomba"
     # =========================
     # Airtime & Data
