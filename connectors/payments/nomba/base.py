@@ -4,7 +4,7 @@ import requests
 import time
 import logging
 from datetime import datetime
-from modules.utils.utils import ServiceProvidersEnvironment
+
 
 log = logging.getLogger("my_logger")
 
@@ -12,8 +12,8 @@ log = logging.getLogger("my_logger")
 class NombaBase:
     def __init__(self, client):
         self.client = client
-        self.environment = client.credentials
-        
+        self.credentials = client.credentials
+        # print(f"CREDENTIALS: {self.credentials}")
         self.base_url = "https://api.nomba.com/v1"
         # self.base_url = self.environment["URL"]
 
@@ -44,14 +44,16 @@ class NombaBase:
     def _get_new_access_token(self):
         payload = {
             "grant_type": "client_credentials",
-            "client_id": self.environment["NOMBA_CLIENT_ID"],
-            "client_secret": self.environment["NOMBA_CLIENT_SECRET"],
+            "client_id": self.credentials.get("client_id").strip(),
+            "client_secret": self.credentials.get("client_secret").strip(),
         }
 
         headers = {
             "Content-Type": "application/json",
-            "accountId": self.environment["NOMBA_ACCOUNT_ID"],
+            "accountId": self.credentials.get("accountId").strip(),
         }
+        # accountid = self.credentials.get("accountId")
+        # print(f"ACCOUNTID {accountid}")
 
         response = requests.post(
             f"{self.base_url}/auth/token/issue",
@@ -88,15 +90,17 @@ class NombaBase:
 
     def _ensure_token(self):
         if not self.tokens["access_token"] or time.time() >= self.tokens["expiry_time"]:
-            try:
-                self._refresh_access_token()
-            except Exception:
-                self._get_new_access_token()
+            if self.tokens["refresh_token"]:
+                try:
+                    self._refresh_access_token()
+                except Exception:
+                    pass
+            self._get_new_access_token()
 
     def _headers(self, include_auth=False):
         headers = {
             "Content-Type": "application/json",
-            "accountId": self.environment["NOMBA_ACCOUNT_ID"],
+            "accountId": self.credentials.get("accountId"),
         }
         if include_auth:
             headers["Authorization"] = f"Bearer {self.tokens['access_token']}"

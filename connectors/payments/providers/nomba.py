@@ -33,21 +33,48 @@ class NombaProvider(BaseProvider):
         email: str,
         currency: str = "NGN",
         reference: str = None,
-        allowed_payment_methods: list = None,
-        tokenize_card: bool = False,
-        callback_url: str = None
+        callback_url: str = None,
+        **kwargs
     ) -> dict:
-        return self.api_client.transaction.initialize_transaction(
+
+        reference = reference or str(uuid.uuid4())
+
+        payload = {
+            "amount": int(amount),
+            "email": email,
+            "reference": reference,
+            "currency": currency,
+        }
+
+        if callback_url:
+            payload["callbackUrl"] = callback_url
+
+        response =  self.api_client.transactions.initialize_transaction(
             email=email,
             amount=amount,
             currency=currency,
             reference=reference or str(uuid.uuid4()),
-            callback_url=self.callback_url,
-            account_id=self.account_id,
-            allowed_payment_methods=allowed_payment_methods or ["Card", "Transfer"],
-            tokenize_card=tokenize_card,
         )
+        print(response)
 
+        return self.clean_init_data(response)
+    
+    def clean_init_data(self, init_data):
+        # Drill down if nested
+        data = init_data.get("data", {})
+
+        return {
+            "payment_url": data.get("checkoutLink"), 
+            "reference": data.get("orderReference") or data.get("reference"),
+            "amount": data.get("amount"),
+            "currency": data.get("currency", "NGN"),
+            "metadata": data.get("metadata", {}) or {},
+            "status": "success" if init_data.get("code") == "00" else "failed",
+            "provider": "nomba",
+
+            # Optional for debugging
+            # "raw": init_data,
+        }
 
     # =========================
     # Airtime & Data

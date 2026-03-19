@@ -26,7 +26,7 @@ class Transactions(NombaBase):
             "order": {
                 "customerEmail": email,
                 "amount": amount,
-                "currency": currency,
+                "currency": currency.upper(),
                 "orderReference": reference or str(uuid.uuid4()),
                 "allowedPaymentMethods": allowed_payment_methods or ["Card", "Transfer"],
                 **({"callbackUrl": callback_url} if callback_url else {}),
@@ -39,18 +39,17 @@ class Transactions(NombaBase):
         return self.post(url, json=payload)
 
     def verify_transaction(self, order_reference: str) -> dict[str, Any]:
-        response = self.get(
-            "/transactions/accounts/single",
-            params={"orderReference": order_reference},
-        )
+
+        url = "/transactions/accounts/single"
+        response = self.get(url, params={"orderReference": order_reference})
+
         data = response.get("data")
         return {"status": data.get("status")} if data else {"status": "failed"}
 
     def fetch(self, merchant_tx_ref: str):
-        response = self.get(
-            "/transactions/accounts/single",
-            params={"merchantTxRef": merchant_tx_ref},
-        )
+
+        url = "/transactions/accounts/single",
+        response = self.get(url, params={"merchantTxRef": merchant_tx_ref},)
         data = response.get("data")
         return {"status": data.get("status")} if data else {"status": "failed"}
 
