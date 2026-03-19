@@ -62,7 +62,7 @@ class FlutterwaveProvider(BasePaymentProvider):
         """
         try:
             # Convert amount from minor units (kobo) to major units (naira) and ensure two decimal places
-            amount_decimal = (Decimal(amount) / 100).quantize(Decimal("0.01"))
+            amount_decimal = (Decimal(amount) / 100).quantize(Decimal("0.01")) * 100
             amount_str = format(amount_decimal, "f")
 
             customer_name = kwargs.get("name", "Anonymous")
@@ -172,7 +172,7 @@ class FlutterwaveProvider(BasePaymentProvider):
                 "message": f"Verification failed: {str(e)}"
             }
 
-    def clean_init_data(self, init_data: Dict[str, Any]) -> Dict[str, Any]:
+    def clean_init_data(self, init_data: Dict[str, Any], amount) -> Dict[str, Any]:
         """
         Clean and format initialization data for frontend consumption.
 
@@ -197,11 +197,13 @@ class FlutterwaveProvider(BasePaymentProvider):
 
             cleaned_data = {
                 "payment_url": payment_url,
-                "access_code": data.get("tx_ref"),
-                "reference": data.get("tx_ref"),
-                "amount": data.get("amount"),
+                "amount": data.get("amount") or str(amount),
                 "currency": data.get("currency"),
-                "status": init_data.get("status")
+                "reference": data.get("tx_ref"),
+                "access_code": data.get("access_code") or None,
+                "metadata": init_data.get("metadata"),
+                "status": init_data.get("status"),
+                "provider": "flutterwave",
             }
             return cleaned_data
         else:

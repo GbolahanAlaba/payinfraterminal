@@ -40,7 +40,7 @@ class PaystackProvider(BasePaymentProvider):
 
         payload = {
             "email": email,
-            "amount": amount,
+            "amount": int(amount * 100),
             "reference": reference,
             "metadata": metadata or {},
         }
@@ -55,15 +55,15 @@ class PaystackProvider(BasePaymentProvider):
     def verify_transaction(self, transaction_id):
         return self.api_client.transactions.verify_transaction(transaction_id)
 
-    def clean_init_data(self, init_data):
+    def clean_init_data(self, init_data, amount):
         data = init_data.get("data", {})
 
         return {
             "payment_url": data.get("authorization_url"),
-            "access_code": data.get("access_code") or data.get("reference"),
+            "amount": data.get("amount") or str(amount),
+            "currency": data.get("currency", "NGN"),
             "reference": data.get("reference"),
-            "amount": data.get("amount"),        # Add amount
-            "currency": data.get("currency", "NGN"),  # Add currency
+            "access_code": data.get("access_code") or None,
             "metadata": data.get("metadata") or {},
             "status": init_data.get("status", "success"),
             "provider": "paystack",

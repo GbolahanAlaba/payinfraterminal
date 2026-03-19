@@ -49,32 +49,26 @@ class NombaProvider(BaseProvider):
         if callback_url:
             payload["callbackUrl"] = callback_url
 
-        response =  self.api_client.transactions.initialize_transaction(
-            email=email,
-            amount=amount,
-            currency=currency,
-            reference=reference or str(uuid.uuid4()),
-        )
-        print(response)
+        response =  self.api_client.transactions.initialize_transaction(**payload)
 
-        return self.clean_init_data(response)
+        return response
     
-    def clean_init_data(self, init_data):
-        # Drill down if nested
-        data = init_data.get("data", {})
+    def clean_init_data(self, init_data, amount):
+        code = init_data.get("code")
+        data = init_data.get("data") or {}
 
         return {
-            "payment_url": data.get("checkoutLink"), 
-            "reference": data.get("orderReference") or data.get("reference"),
-            "amount": data.get("amount"),
+            "payment_url": data.get("checkoutLink"),
+            "access_code": None,
+            "amount": data.get("amount") or str(amount),
             "currency": data.get("currency", "NGN"),
-            "metadata": data.get("metadata", {}) or {},
-            "status": "success" if init_data.get("code") == "00" else "failed",
+            "reference": data.get("orderReference"),
+            "access_code": data.get("access_code") or None,
+            "metadata": data.get("metadata") or {},
+            "status": True if code == "00" and data.get("success") else False,
             "provider": "nomba",
-
-            # Optional for debugging
-            # "raw": init_data,
         }
+
 
     # =========================
     # Airtime & Data

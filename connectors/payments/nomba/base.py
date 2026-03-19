@@ -14,7 +14,7 @@ class NombaBase:
         self.client = client
         self.credentials = client.credentials
         # print(f"CREDENTIALS: {self.credentials}")
-        self.base_url = "https://api.nomba.com/v1"
+        self.base_url = "https://sandbox.nomba.com/v1"
         # self.base_url = self.environment["URL"]
 
         self.tokens = {

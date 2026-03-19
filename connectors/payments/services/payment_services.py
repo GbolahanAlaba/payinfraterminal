@@ -34,56 +34,6 @@ class PaymentService:
         """Return provider instance with merchant credentials."""
         return self.provider_class(credentials=self.credentials, callback_url=self.callback_url)
 
-    def _unify_response(self, cleaned_data: dict, raw_data: dict, amount: Decimal) -> dict:
-        provider_data = raw_data.get("data", {}).copy()
-        provider_data.update(cleaned_data)
-
-        unified_data = {
-            "payment_url": provider_data.get("payment_url")
-            or provider_data.get("authorization_url")
-            or provider_data.get("link"),
-
-            "access_code": provider_data.get("access_code")
-            or provider_data.get("tx_ref"),
-
-            "reference": (
-                provider_data.get("reference")
-                or provider_data.get("tx_ref")
-                or provider_data.get("payment_reference")
-                or raw_data.get("reference")
-                or cleaned_data.get("reference")
-            ),
-
-
-            "amount": provider_data.get("amount") or str(amount),
-            "currency": provider_data.get("currency") or "NGN",
-            "metadata": provider_data.get("metadata") or {},
-            "provider": provider_data.get("provider") or self.provider_name,
-        }
-
-        # fields that are aliases of unified fields
-        alias_fields = {
-            "authorization_url",
-            "link",
-            "tx_ref",
-            "payment_url",
-            "reference",
-            "access_code",
-        }
-
-        extra_fields = {
-            k: v for k, v in provider_data.items()
-            if k not in unified_data and k not in alias_fields
-        }
-
-        unified_data.update(extra_fields)
-
-        return {
-            "status": cleaned_data.get("status") or raw_data.get("status") or "success",
-            "message": cleaned_data.get("message") or raw_data.get("message") or "Transaction initialized",
-            "data": unified_data,
-        }
-
 
     def initialize_payment(
         self,
@@ -101,21 +51,16 @@ class PaymentService:
         provider = self.get_provider_instance()
 
         init_data = provider.initialize_transaction(
-            amount=int(amount * 100),
+            amount=int(amount),
             currency=currency,
             email=email,
             reference=reference,
             callback_url=callback_url,
             metadata={"amount": str(amount)},
         )
-
-        # # Use provider's clean_init_data
-        # cleaned_data = provider.clean_init_data(init_data)
-
-        # Return unified response with fallback
-        cleaned_data = provider.clean_init_data(init_data)
-        response = self._unify_response(cleaned_data, init_data, amount)
-        return response
+        print(init_data)
+        cleaned_data = provider.clean_init_data(init_data, amount)
+        return cleaned_data
 
     def verify_payment(self, reference: str):
         provider = self.get_provider_instance()

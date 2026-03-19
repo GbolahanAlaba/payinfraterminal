@@ -108,7 +108,7 @@ class ProcessPaymentAPIView(APIView):
                 latency
             )
 
-            reference = payment_response["data"].get("reference")
+            reference = payment_response.get("reference")
             transaction = Transaction.create_transaction(
                 merchant=merchant,
                 api_client=api_client,
