@@ -59,18 +59,20 @@ class PaystackProvider(BasePaymentProvider):
         data = init_data.get("data", {})
 
         return {
-            "payment_url": data.get("authorization_url"),
-            "amount": data.get("amount") or str(amount),
-            "currency": data.get("currency", "NGN"),
-            "reference": data.get("reference"),
-            "access_code": data.get("access_code") or None,
-            "metadata": data.get("metadata") or {},
-            "status": init_data.get("status", "success"),
-            "provider": "paystack",
-    
+            "cleaned_data": {
+                "payment_url": data.get("authorization_url"),
+                "amount": data.get("amount") or str(amount),
+                "currency": data.get("currency", "NGN"),
+                "reference": data.get("reference"),
+                "status": init_data.get("status", "success"),
+                "provider": "paystack",
+            },
+            "provider_data": {
+                "data": init_data,
+            }
             # "raw": init_data,
         }
-
+ 
     def process_payment(self, transaction_id):
         return self.api_client.transactions.process_payment(transaction_id)
 

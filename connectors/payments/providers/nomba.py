@@ -58,18 +58,25 @@ class NombaProvider(BaseProvider):
         data = init_data.get("data") or {}
 
         return {
-            "payment_url": data.get("checkoutLink"),
-            "access_code": None,
-            "amount": data.get("amount") or str(amount),
-            "currency": data.get("currency", "NGN"),
-            "reference": data.get("orderReference"),
-            "access_code": data.get("access_code") or None,
-            "metadata": data.get("metadata") or {},
-            "status": True if code == "00" and data.get("success") else False,
-            "provider": "nomba",
+            "cleaned_data": {
+                "payment_url": data.get("checkoutLink"),
+                "amount": data.get("amount") or str(amount),
+                "currency": data.get("currency", "NGN"),
+                "reference": data.get("orderReference"),
+                "status": True if code == "00" and data.get("success") else False,
+                "provider": "nomba",
+
+            },
+            "provider_data": {
+                "data": init_data,
+            }
+             
         }
 
 
+    def verify_transaction(self, transaction_id):
+        return self.api_client.transactions.verify_transaction(transaction_id)
+    
     # =========================
     # Airtime & Data
     # =========================

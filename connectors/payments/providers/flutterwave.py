@@ -196,14 +196,18 @@ class FlutterwaveProvider(BasePaymentProvider):
                 }
 
             cleaned_data = {
-                "payment_url": payment_url,
-                "amount": data.get("amount") or str(amount),
-                "currency": data.get("currency"),
-                "reference": data.get("tx_ref"),
-                "access_code": data.get("access_code") or None,
-                "metadata": init_data.get("metadata"),
-                "status": init_data.get("status"),
-                "provider": "flutterwave",
+                "cleaned_data": {
+                    "payment_url": payment_url,
+                    "amount": data.get("amount") or str(amount),
+                    "currency": data.get("currency"),
+                    "reference": data.get("tx_ref"),
+                    "status": init_data.get("status"),
+                    "provider": "flutterwave",
+                },
+                "provider_data": {
+                "data": init_data,
+                }
+                
             }
             return cleaned_data
         else:
