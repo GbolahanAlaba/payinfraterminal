@@ -13,16 +13,12 @@ log = logging.getLogger(__name__)
 
 
 
-def verify_paystack():
-
-    pass
-
 @shared_task(bind=True, autoretry_for=(Exception,), retry_backoff=True, retry_kwargs={"max_retries": 3})
-def verify_processing_transactions(self):
+def verify_processing_topup(self):
 
     processing_transactions = (
         Transaction.objects
-        .filter(status=STATUS.PROCESSING, transaction_type=TRANSACTION_TYPE.COLLECTION)
+        .filter(status=STATUS.PROCESSING, transaction_type=TRANSACTION_TYPE.TOPUP)
         .select_related("merchant", "api_client")
         .only(
             "id",
@@ -44,32 +40,14 @@ def verify_processing_transactions(self):
             credentials = engine.get_provider_credentials(
                 tx.preferred_provider)
             
-            if tx.preferred_provider == "paystack":
-                paystack_data = VerifyTransactionView.__paystack__(self, tx.reference, credentials, tx.api_client.environment)
-
-                metadata = paystack_data["metadata"]
-                provider_status = paystack_data["provider_status"]
-                channel = paystack_data["channel"]
-                message = paystack_data["message"]
-                response = paystack_data["response"]
-
-            if tx.preferred_provider == "flutterwave":
-                flutterwave_data = VerifyTransactionView.__flutterwave__(self, tx.reference, credentials, tx.api_client.environment)
-
-                metadata = flutterwave_data["metadata"]
-                provider_status = flutterwave_data["provider_status"]
-                channel = flutterwave_data["channel"]
-                message = flutterwave_data["message"]
-                response = flutterwave_data["response"]
-
             if tx.preferred_provider == "nomba":
-                nombe_data = VerifyTransactionView.__nomba__(self, tx.reference, credentials, tx.api_client.environment)
+                nomba_data = VerifyTransactionView.__nomba__(self, tx.reference, credentials, tx.api_client.environment)
 
-                metadata = nombe_data["metadata"]
-                provider_status = nombe_data["provider_status"]
-                channel = nombe_data["channel"]
-                message = nombe_data["message"]
-                response = nombe_data["response"]
+                metadata = nomba_data["metadata"]
+                provider_status = nomba_data["provider_status"]
+                channel = nomba_data["channel"]
+                message = nomba_data["message"]
+                response = nomba_data["response"]
 
             with db_transaction.atomic():
 

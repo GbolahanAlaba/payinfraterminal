@@ -120,7 +120,7 @@ class NombaProvider(BaseProvider):
 
         return response
     
-    def topup_clean_init_data(self, init_data, amount):
+    def topup_clean_init_data(self, init_data):
         code = init_data.get("code")
         data = init_data.get("data") or {}
 

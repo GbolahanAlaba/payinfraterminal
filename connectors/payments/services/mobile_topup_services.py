@@ -9,7 +9,7 @@ from connectors.payments.providers import PAYMENT_PROVIDERS
 log = logging.getLogger("my_logger")
 
 
-class MobileRechargeService:
+class MobileTopupService:
     """
     Central payment service with unified responses.
     """
@@ -71,7 +71,7 @@ class MobileRechargeService:
             )
         
         print(init_data)
-        cleaned_data = provider.topup_clean_init_data(init_data, amount)
+        cleaned_data = provider.topup_clean_init_data(init_data)
         return cleaned_data
 
     def verify_payment(self, reference: str):

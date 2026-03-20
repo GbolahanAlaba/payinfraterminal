@@ -35,6 +35,13 @@ class MobileTopupAPIView(APIView):
         reference = serializer.validated_data.get("reference")
         callback_url=serializer.validated_data.get("callback_url")
 
+        if topup_type.lower() not in ["airtime", "data"]:
+            return error_response(
+                status_code=400,
+                message="topup type must be 'airtime' or 'data'",
+                errors="Invalid topup type"
+            )
+
         if Transaction.objects.filter(reference=reference).exists():
             return error_response(
                 status_code=400,
@@ -79,6 +86,7 @@ class MobileTopupAPIView(APIView):
                 reference=reference,
                 customer_phone=phone_number,
                 currency="NGN",
+                transaction_type="topup",
                 preferred_provider=provider,
                 final_provider=provider,
                 latency=latency,

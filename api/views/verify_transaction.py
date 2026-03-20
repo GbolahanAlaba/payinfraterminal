@@ -94,6 +94,7 @@ class VerifyTransactionView(APIView):
 
         metadata = response.get("data", {})
         status = response.get("status").lower()
+        channel = response.get("channel", "")
         message = response.get("message", "")
         
         if status in [True, "success", "successful"]:

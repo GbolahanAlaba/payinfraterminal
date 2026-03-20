@@ -44,14 +44,14 @@ class Transaction(models.Model):
     customer_email = models.EmailField(blank=True, null=True)
     customer_phone = models.CharField(max_length=20, blank=True, null=True)
 
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
     currency = models.CharField(max_length=10, blank=True, null=True, default="NGN")
 
     channel = models.CharField(
         max_length=50, 
         blank=True, 
         null=True, 
-        default="card", 
+        default="", 
         help_text="Payment channel used, e.g. card, bank_transfer, ussd"
     )
 
@@ -70,7 +70,7 @@ class Transaction(models.Model):
         help_text="Latency in milliseconds for the transaction processing"
     )
 
-    message = models.TextField()
+    message = models.TextField(null=True, blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

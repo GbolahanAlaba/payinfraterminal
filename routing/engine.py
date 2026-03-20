@@ -1,7 +1,7 @@
 import logging
 
 from connectors.payments.services.payment_services import PaymentService
-from connectors.payments.services.mobile_recharge_services import MobileRechargeService
+from connectors.payments.services.mobile_topup_services import MobileTopupService
 from api.models import ClientProvider, ClientProviderCredential
 
 
@@ -36,6 +36,7 @@ class PaymentRouteEngine:
             reference=reference,
         )
 
+
     def route_mobile_topup(
         self,
         *,
@@ -49,7 +50,7 @@ class PaymentRouteEngine:
         credentials: str,
         callback_url: str,
     ):
-        service = MobileRechargeService(
+        service = MobileTopupService(
             provider_name=provider,
             credentials=credentials,
             environment=self.environment,
