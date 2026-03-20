@@ -10,7 +10,11 @@ class PaystackClient:
     Main Paystack Client that exposes all API functionalities.
     """
 
-    def __init__(self, secret_key):
+    def __init__(self, secret_key, environment):
+
+        self.secret_key = secret_key
+        self.environment = environment
+
         self.transactions = Transactions(secret_key)
         self.miscellaneous = Miscellaneous(secret_key)
         self.verification = Verification(secret_key)

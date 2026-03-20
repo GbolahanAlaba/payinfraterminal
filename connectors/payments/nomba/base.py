@@ -12,10 +12,13 @@ log = logging.getLogger("my_logger")
 class NombaBase:
     def __init__(self, client):
         self.client = client
+        if client.environment == "sandbox":
+            print(f"ENV {client.environment}")
+            self.base_url = "https://sandbox.nomba.com/v1"
+        else:
+            self.base_url = "https://api.nomba.com/v1"
+            
         self.credentials = client.credentials
-        # print(f"CREDENTIALS: {self.credentials}")
-        self.base_url = "https://sandbox.nomba.com/v1"
-        # self.base_url = self.environment["URL"]
 
         self.tokens = {
             "access_token": None,

@@ -13,7 +13,7 @@ class NombaProvider(BaseProvider):
     Nomba Payment Provider Implementation
     """
 
-    def __init__(self, credentials: str, callback_url: str = None):
+    def __init__(self, credentials: str, environment: str, callback_url: str = None, ):
         """
         Initializes Nomba provider using environment-based credentials.
         """
@@ -22,7 +22,7 @@ class NombaProvider(BaseProvider):
             raise ValueError("Nomba credentials is missing.")
 
         super().__init__(
-            api_client=NombaClient(credentials=credentials)
+            api_client=NombaClient(credentials=credentials, environment=environment)
         )
         
         self.name = "Nomba"

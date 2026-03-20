@@ -16,7 +16,7 @@ class FlutterwaveProvider(BasePaymentProvider):
     Flutterwave Payment Provider Implementation.
     """
 
-    def __init__(self, credentials: str, callback_url: str = None):
+    def __init__(self, credentials: str, environment: str, callback_url: str = None):
         if not credentials:
             raise ValueError("Flutterwave secret key is required.")
 
@@ -35,7 +35,8 @@ class FlutterwaveProvider(BasePaymentProvider):
 
         super().__init__(api_client=FlutterwaveClient(
             secret_key=self.secret_key,
-            is_sandbox=self.is_sandbox
+            is_sandbox=self.is_sandbox,
+            environment=environment,
         ))
 
         self.name = "flutterwave"

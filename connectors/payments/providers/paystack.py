@@ -13,7 +13,7 @@ class PaystackProvider(BasePaymentProvider):
     Supports dynamic secret keys per merchant.
     """
 
-    def __init__(self, credentials: str, callback_url: str = None):
+    def __init__(self, credentials: str, environment: str, callback_url: str = None):
         """
         :param credentials: Merchant Paystack credentials
         :param callback_url: Optional override callback URL
@@ -28,7 +28,7 @@ class PaystackProvider(BasePaymentProvider):
             settings, "PAYSTACK_CALLBACK_URL", None
         )
 
-        super().__init__(api_client=PaystackClient(secret_key=self.credentials))
+        super().__init__(api_client=PaystackClient(secret_key=self.credentials, environment=environment))
         self.name = "paystack"
 
     # ------------------------------------------------------------------

@@ -13,7 +13,7 @@ class FlutterwaveClient:
     Main Flutterwave client that provides access to all Flutterwave services.
     """
 
-    def __init__(self, secret_key: str, is_sandbox: bool = True):
+    def __init__(self, secret_key: str, environment: str, is_sandbox: bool = True):
         """
         Initialize the Flutterwave client.
 
@@ -23,6 +23,7 @@ class FlutterwaveClient:
         """
         self.secret_key = secret_key
         self.is_sandbox = is_sandbox
+        self.environment = environment
         
         logger.info(f"Initializing FlutterwaveClient - Secret Key Length: {len(secret_key) if secret_key else 0}, Is Sandbox: {is_sandbox}")
         

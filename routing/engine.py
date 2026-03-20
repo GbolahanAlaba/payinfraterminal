@@ -9,6 +9,7 @@ log = logging.getLogger(__name__)
 class PaymentRouteEngine:
     def __init__(self, client):
         self.client = client
+        self.environment = getattr(client, "environment", "live")
 
     def route_payment(
         self,
@@ -24,6 +25,7 @@ class PaymentRouteEngine:
         service = PaymentService(
             provider_name=provider,
             credentials=credentials,
+            environment=self.environment,
             callback_url=callback_url,
         )
         return service.initialize_payment(

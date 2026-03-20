@@ -19,11 +19,12 @@ class VerifyTransactionView(APIView):
     permission_classes = []
     
 
-    def __paystack__(self, reference, credentials):
+    def __paystack__(self, reference, credentials, environment):
 
         service = PaymentService(
             provider_name="paystack",
-            credentials=credentials["secret_key"]
+            credentials=credentials["secret_key"],
+            environment=environment
         )
 
         response = service.verify_payment(reference=reference)
@@ -50,11 +51,12 @@ class VerifyTransactionView(APIView):
         }
 
 
-    def __flutterwave__(self, reference, credentials):
+    def __flutterwave__(self, reference, credentials, environment):
 
         service = PaymentService(
             provider_name="flutterwave",
-            credentials=credentials["secret_key"]
+            credentials=credentials["secret_key"],
+            environment=environment
         )
 
         response = service.verify_payment(reference=reference)
@@ -80,11 +82,12 @@ class VerifyTransactionView(APIView):
         }
 
     
-    def __nomba__(self, reference, credentials):
+    def __nomba__(self, reference, credentials, environment):
 
         service = PaymentService(
             provider_name="nomba",
-            credentials=credentials
+            credentials=credentials,
+            environment=environment
         )
 
         response = service.verify_payment(reference=reference)
@@ -111,6 +114,7 @@ class VerifyTransactionView(APIView):
 
     def get(self, request, reference):
         api_client = authenticate_client(request)
+        environment = api_client.environment
 
         try:
             tx = Transaction.objects.select_related(
@@ -124,7 +128,7 @@ class VerifyTransactionView(APIView):
             )
 
             if tx.preferred_provider == "paystack":
-                paystack_data = self.__paystack__(tx.reference, credentials)
+                paystack_data = self.__paystack__(tx.reference, credentials, environment)
 
                 metadata = paystack_data["metadata"]
                 provider_status = paystack_data["provider_status"]
@@ -133,7 +137,7 @@ class VerifyTransactionView(APIView):
                 response = paystack_data["response"]
 
             if tx.preferred_provider == "flutterwave":
-                flutterwave_data = self.__flutterwave__(tx.reference, credentials)
+                flutterwave_data = self.__flutterwave__(tx.reference, credentials, environment)
 
                 metadata = flutterwave_data["metadata"]
                 provider_status = flutterwave_data["provider_status"]
@@ -142,7 +146,7 @@ class VerifyTransactionView(APIView):
                 response = flutterwave_data["response"]
             
             if tx.preferred_provider == "nomba":
-                nomba_data = self.__nomba__(tx.reference, credentials)
+                nomba_data = self.__nomba__(tx.reference, credentials, environment)
 
                 metadata = nomba_data["metadata"]
                 provider_status = nomba_data["provider_status"]
