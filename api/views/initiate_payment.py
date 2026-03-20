@@ -83,6 +83,13 @@ class ProcessPaymentAPIView(APIView):
         reference = serializer.validated_data.get("reference")
         callback_url = serializer.validated_data.get("callback_url")
 
+        if Transaction.objects.filter(reference=reference).exists():
+            return error_response(
+                status_code=400,
+                message="reference must be unique",
+                errors="reference already exist"
+            )
+
         engine = PaymentRouteEngine(client=api_client)
         merchant = api_client.merchant
 
@@ -108,7 +115,9 @@ class ProcessPaymentAPIView(APIView):
                 latency
             )
 
-            reference = payment_response.get("reference")
+            cleaned = payment_response.get("cleaned_data", {})
+            reference = cleaned.get("reference")
+            
             transaction = Transaction.create_transaction(
                 merchant=merchant,
                 api_client=api_client,
@@ -143,13 +152,11 @@ class ProcessPaymentAPIView(APIView):
                 "2"
             )
 
-            return Response(
-                {
-                    "status": "error",
-                    "message": str(e),
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return error_response(
+                    status_code=400,
+                    message=str(e),
+                    errors=str(e),
+                )
 
 
 

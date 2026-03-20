@@ -23,7 +23,7 @@ class VerifyTransactionView(APIView):
 
         service = PaymentService(
             provider_name="paystack",
-            secret_key=credentials["secret_key"]
+            credentials=credentials["secret_key"]
         )
 
         response = service.verify_payment(reference=reference)
@@ -54,7 +54,7 @@ class VerifyTransactionView(APIView):
 
         service = PaymentService(
             provider_name="flutterwave",
-            secret_key=credentials["secret_key"]
+            credentials=credentials["secret_key"]
         )
 
         response = service.verify_payment(reference=reference)
@@ -74,6 +74,34 @@ class VerifyTransactionView(APIView):
         return {
             "provider_status": provider_status,
             "channel": channel,
+            "metadata": metadata,
+            "message": message,
+            "response": response
+        }
+
+    
+    def __nomba__(self, reference, credentials):
+
+        service = PaymentService(
+            provider_name="nomba",
+            credentials=credentials
+        )
+
+        response = service.verify_payment(reference=reference)
+
+        metadata = response.get("data", {})
+        status = response.get("status").lower()
+        message = response.get("message", "")
+        
+        if status in [True, "success", "successful"]:
+            provider_status = "success"
+        elif status in [False, "failed"]:
+            provider_status = "failed"
+        else:
+            provider_status = "processing"
+
+        return {
+            "provider_status": provider_status,
             "metadata": metadata,
             "message": message,
             "response": response
@@ -112,6 +140,15 @@ class VerifyTransactionView(APIView):
                 channel = flutterwave_data["channel"]
                 message = flutterwave_data["message"]
                 response = flutterwave_data["response"]
+            
+            if tx.preferred_provider == "nomba":
+                nomba_data = self.__nomba__(tx.reference, credentials)
+
+                metadata = nomba_data["metadata"]
+                provider_status = nomba_data["provider_status"]
+                channel = "card"
+                message = nomba_data["message"]
+                response = nomba_data["response"]
 
             with db_transaction.atomic():
 

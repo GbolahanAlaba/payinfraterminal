@@ -66,8 +66,8 @@ class PaymentService:
         provider = self.get_provider_instance()
         raw_data = provider.verify_transaction(reference)
 
-        cleaned_data = provider.clean_init_data(raw_data)
-
+        # cleaned_data = provider.clean_init_data(raw_data)
+        print(raw_data)
         return raw_data
 
     

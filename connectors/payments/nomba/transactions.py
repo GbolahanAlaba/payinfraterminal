@@ -48,7 +48,7 @@ class Transactions(NombaBase):
 
     def fetch(self, merchant_tx_ref: str):
 
-        url = "/transactions/accounts/single",
+        url = "/transactions/accounts/single"
         response = self.get(url, params={"merchantTxRef": merchant_tx_ref},)
         data = response.get("data")
         return {"status": data.get("status")} if data else {"status": "failed"}

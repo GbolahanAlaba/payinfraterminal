@@ -75,7 +75,7 @@ class NombaProvider(BaseProvider):
 
 
     def verify_transaction(self, transaction_id):
-        return self.api_client.transactions.verify_transaction(transaction_id)
+        return self.api_client.transactions.fetch(transaction_id)
     
     # =========================
     # Airtime & Data
