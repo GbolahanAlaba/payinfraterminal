@@ -35,7 +35,6 @@ class FlutterwaveProvider(BasePaymentProvider):
 
         super().__init__(api_client=FlutterwaveClient(
             secret_key=self.secret_key,
-            is_sandbox=self.is_sandbox,
             environment=environment,
         ))
 
