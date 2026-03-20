@@ -1,6 +1,7 @@
 import logging
 
 from connectors.payments.services.payment_services import PaymentService
+from connectors.payments.services.mobile_recharge_services import MobileRechargeService
 from api.models import ClientProvider, ClientProviderCredential
 
 
@@ -32,6 +33,34 @@ class PaymentRouteEngine:
             amount=amount,
             currency=currency,
             email=email,
+            reference=reference,
+        )
+
+    def route_mobile_topup(
+        self,
+        *,
+        provider: str,
+        topup_type: str,
+        network: str,
+        phone_number: str,
+        amount,
+        sender_name: str,
+        reference: str | None = None,
+        credentials: str,
+        callback_url: str,
+    ):
+        service = MobileRechargeService(
+            provider_name=provider,
+            credentials=credentials,
+            environment=self.environment,
+            callback_url=callback_url,
+        )
+        return service.initialize_mobile_recharge(
+            topup_type=topup_type,
+            network=network,
+            phone_number=phone_number,
+            amount=amount,
+            sender_name=sender_name,
             reference=reference,
         )
     

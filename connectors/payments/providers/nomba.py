@@ -107,8 +107,10 @@ class NombaProvider(BaseProvider):
         network: str,
         reference: str,
         sender_name: str,
+
     ):
-        return self.api_client.bills.buy_airtime(
+        
+        response = self.api_client.bills.buy_airtime(
             amount=amount,
             phone_number=phone_number,
             network=network,
@@ -116,6 +118,27 @@ class NombaProvider(BaseProvider):
             sender_name=sender_name,
         )
 
+        return response
+    
+    def topup_clean_init_data(self, init_data, amount):
+        code = init_data.get("code")
+        data = init_data.get("data") or {}
+
+        return {
+            "cleaned_data": {
+                "network": data.get("network"),
+                "phone_number": data.get("phoneNumber"),
+                "amount": data.get("amount"),
+                "reference": data["meta"]["merchantTxRef"],
+                "status": True if code == "00" and data.get("success") else False,
+                "provider": "nomba",
+
+            },
+            "provider_data": {
+                "data": init_data,
+            }
+             
+        }
     # =========================
     # Electricity
     # =========================

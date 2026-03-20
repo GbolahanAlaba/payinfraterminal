@@ -4,12 +4,18 @@ All payment serializers for the APIs service
 """
 
 from .payment import PaymentRequestSerializer
-from .client import (APIClientSerializer, ClientProviderSerializer, 
-    ClientProviderCredentialSerializer, SetupClientProviderSerializer, RegenerateAPIKeysSerializer,
+from .mobile_topup import MobileTopupSerializer
+from .client import (
+    APIClientSerializer, 
+    ClientProviderSerializer, 
+    ClientProviderCredentialSerializer, 
+    SetupClientProviderSerializer, 
+    RegenerateAPIKeysSerializer,
     UpdateWebhookURLSerializer)
 
 __all__ = [
     "PaymentRequestSerializer",
+    "MobileTopupSerializer",
     "APIClientSerializer",
     "ClientProviderSerializer",
     "ClientProviderCredentialSerializer",

@@ -23,6 +23,7 @@ class TRANSACTION_TYPE(models.TextChoices):
     COLLECTION = "collection", _("Collection")
     PAYOUT = "payout", _("Payout")
     REFUND = "refund", _("Refund")
+    TOPUP = "topup", _("Topup")
 
 
 class Transaction(models.Model):
