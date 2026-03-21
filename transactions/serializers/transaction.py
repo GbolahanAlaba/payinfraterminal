@@ -23,6 +23,8 @@ class TransactionCreateSerializer(serializers.ModelSerializer):
 
 class TransactionResponseSerializer(serializers.ModelSerializer):
     preferred_provider = serializers.SerializerMethodField()
+    channel = serializers.SerializerMethodField()
+    customer_email = serializers.SerializerMethodField()
 
     class Meta:
         model = Transaction
@@ -30,3 +32,9 @@ class TransactionResponseSerializer(serializers.ModelSerializer):
 
     def get_preferred_provider(self, obj):
         return obj.provider
+
+    def get_channel(self, obj):
+        return getattr(obj.collection, "channel", None)
+
+    def get_customer_email(self, obj):
+        return getattr(obj.collection, "customer_email", None)
