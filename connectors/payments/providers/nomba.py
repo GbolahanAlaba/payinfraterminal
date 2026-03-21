@@ -1,5 +1,7 @@
 import logging
 import uuid
+import random
+import string
 from typing import Any
 from connectors.payments.providers.base import BaseProvider
 from connectors.payments.nomba.nomba import NombaClient
@@ -27,6 +29,12 @@ class NombaProvider(BaseProvider):
         
         self.name = "Nomba"
 
+
+    @staticmethod
+    def generate_code(length=10):
+        chars = string.ascii_lowercase + string.digits
+        return ''.join(random.choices(chars, k=length))
+
     def initialize_transaction(
         self,
         amount: str,
@@ -37,12 +45,12 @@ class NombaProvider(BaseProvider):
         **kwargs
     ) -> dict:
 
-        reference = reference or str(uuid.uuid4())
+        reference_f = reference or NombaProvider.generate_code()
 
         payload = {
             "amount": int(amount),
             "email": email,
-            "reference": reference,
+            "reference": reference_f,
             "currency": currency,
         }
 

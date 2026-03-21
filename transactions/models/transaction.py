@@ -1,5 +1,7 @@
 from random import randint
 import uuid
+import random
+import string
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from merchants.models import Merchant
@@ -75,6 +77,11 @@ class Transaction(models.Model):
     @staticmethod
     def generate_transaction_id():
         return f"TXN-{uuid.uuid4().hex[:12].upper()}"
+
+    @staticmethod
+    def generate_code(length=10):
+        chars = string.ascii_lowercase + string.digits
+        return ''.join(random.choices(chars, k=length))
     
     def create_transaction(
         merchant,

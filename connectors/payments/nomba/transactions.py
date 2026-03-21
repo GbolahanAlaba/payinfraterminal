@@ -27,7 +27,7 @@ class Transactions(NombaBase):
                 "customerEmail": email,
                 "amount": amount,
                 "currency": currency.upper(),
-                "orderReference": reference or str(uuid.uuid4()),
+                "orderReference": reference,
                 "allowedPaymentMethods": allowed_payment_methods or ["Card", "Transfer"],
                 **({"callbackUrl": callback_url} if callback_url else {}),
                 **({"accountId": account_id} if account_id else {}),
