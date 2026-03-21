@@ -59,6 +59,7 @@ class Transaction(models.Model):
     )
 
     reference = models.CharField(max_length=100, null=True, blank=True)
+    provider = models.CharField(max_length=50, blank=True, null=True)
 
     message = models.TextField(null=True, blank=True)
 
@@ -86,6 +87,7 @@ class Transaction(models.Model):
         channel="card",
         transaction_type=None,
         transaction_source=None,
+        provider=None,
         preferred_provider=None,
         final_provider=None,
         latency=None,
@@ -104,6 +106,7 @@ class Transaction(models.Model):
             reference=reference,
             currency=currency,
             transaction_type=transaction_type or TRANSACTION_TYPE.COLLECTION,
+            provider=provider,
             message="Transaction initialized",
         )
 

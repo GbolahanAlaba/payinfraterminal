@@ -126,6 +126,7 @@ class ProcessPaymentAPIView(APIView):
                 reference=reference,
                 customer_email=email,
                 currency=currency,
+                provider=provider,
                 preferred_provider=provider,
                 final_provider=provider,
                 latency=latency,

@@ -52,7 +52,7 @@ class OverviewView(APIView):
         # performance_serializer = ProviderPerformanceSerializer(performances, many=True)
 
         provider_qs = (
-        qs.values("preferred_provider")  # group by provider
+        qs.values("provider")  # group by provider
         .annotate(
             total_transactions=Count("id"),
             successful_transactions=Count("id", filter=Q(status=STATUS.SUCCESS)),
@@ -67,7 +67,7 @@ class OverviewView(APIView):
         provider_performance = []
         for p in provider_qs:
             provider_performance.append({
-                "provider": p["preferred_provider"],
+                "provider": p["provider"],
                 "total_transactions": p["total_transactions"],
                 "successful_transactions": p["successful_transactions"],
                 "failed_transactions": p["failed_transactions"],

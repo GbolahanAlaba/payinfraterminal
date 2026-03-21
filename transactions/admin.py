@@ -36,6 +36,7 @@ class TransactionAdmin(admin.ModelAdmin):
         "merchant",
         "amount",
         "currency",
+        "provider",
         "transaction_type",
         "status",
         "created_at",
@@ -45,17 +46,20 @@ class TransactionAdmin(admin.ModelAdmin):
         "status",
         "transaction_type",
         "currency",
+        "provider",
         "created_at",
     )
 
     search_fields = (
         "transaction_id",
+        "provider",
         "reference",
         "merchant__business_name",
     )
 
     readonly_fields = (
         "transaction_id",
+        "provider",
         "created_at",
         "updated_at",
         "completed_at",
