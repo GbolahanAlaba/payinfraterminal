@@ -22,7 +22,11 @@ class TransactionCreateSerializer(serializers.ModelSerializer):
 
 
 class TransactionResponseSerializer(serializers.ModelSerializer):
+    preferred_provider = serializers.SerializerMethodField()
 
     class Meta:
         model = Transaction
         fields = "__all__"
+
+    def get_preferred_provider(self, obj):
+        return obj.provider
