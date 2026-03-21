@@ -157,7 +157,7 @@ class CollectionTransaction(models.Model):
     preferred_provider = models.CharField(max_length=50, blank=True, null=True)
     final_provider = models.CharField(max_length=50, blank=True, null=True)
     provider_reference = models.CharField(max_length=100, blank=True, null=True)
-    payment_link = models.URLField(blank=True, null=True)
+    payment_link = models.URLField(max_length=1000, blank=True, null=True)
     reference = models.CharField(max_length=100, null=True, blank=True)
     metadata = models.JSONField(default=dict, blank=True)
 
