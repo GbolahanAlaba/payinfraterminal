@@ -25,6 +25,7 @@ class TransactionResponseSerializer(serializers.ModelSerializer):
     preferred_provider = serializers.SerializerMethodField()
     channel = serializers.SerializerMethodField()
     customer_email = serializers.SerializerMethodField()
+    metadata = serializers.SerializerMethodField()
 
     class Meta:
         model = Transaction
@@ -38,3 +39,6 @@ class TransactionResponseSerializer(serializers.ModelSerializer):
 
     def get_customer_email(self, obj):
         return getattr(obj.collection, "customer_email", None)
+
+    def get_metadata(self, obj):
+        return getattr(obj.collection, "metadata", None)
