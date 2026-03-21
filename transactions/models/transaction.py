@@ -29,62 +29,52 @@ class TRANSACTION_TYPE(models.TextChoices):
 class Transaction(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     transaction_id = models.CharField(max_length=50, unique=True)
+
+    merchant = models.ForeignKey(
+        Merchant,
+        on_delete=models.CASCADE,
+        related_name='transactions'
+    )
+
+    api_client = models.ForeignKey(
+        APIClient,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='transactions'
+    )
+
     transaction_type = models.CharField(
-        max_length=20, 
+        max_length=20,
         choices=TRANSACTION_TYPE.choices,
-        default=TRANSACTION_TYPE.COLLECTION
     )
-    transaction_source = models.CharField(
-        max_length=20, 
-        choices=TRANSACTION_SOURCE.choices,
-        default=TRANSACTION_SOURCE.API
-    )
-    merchant = models.ForeignKey(Merchant, on_delete=models.CASCADE, related_name='merchant_transactions')
-    api_client = models.ForeignKey(APIClient, on_delete=models.CASCADE, null=True, blank=True, related_name='apiclient_transactions')
-    customer_email = models.EmailField(blank=True, null=True)
-    customer_phone = models.CharField(max_length=20, blank=True, null=True)
-
+    
     amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
-    currency = models.CharField(max_length=10, blank=True, null=True, default="NGN")
+    currency = models.CharField(max_length=10, default="NGN")
 
-    channel = models.CharField(
-        max_length=50, 
-        blank=True, 
-        null=True, 
-        default="", 
-        help_text="Payment channel used, e.g. card, bank_transfer, ussd"
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS.choices,
+        default=STATUS.PROCESSING
     )
 
     reference = models.CharField(max_length=100, null=True, blank=True)
-    
-    status = models.CharField(max_length=20, choices=STATUS.choices, default=STATUS.PROCESSING)
-    
-    preferred_provider = models.CharField(max_length=50, blank=True, null=True)
-    final_provider = models.CharField(max_length=50, blank=True, null=True)
-
-    latency = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
-        blank=True, 
-        null=True, 
-        help_text="Latency in milliseconds for the transaction processing"
-    )
 
     message = models.TextField(null=True, blank=True)
-    
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     completed_at = models.DateTimeField(blank=True, null=True)
-    
+
     metadata = models.JSONField(default=dict, blank=True)
-    
+
     def __str__(self):
         return f"{self.transaction_id} - {self.status}"
 
-
+    @staticmethod
     def generate_transaction_id():
         return f"TXN-{uuid.uuid4().hex[:12].upper()}"
-
+    
     def create_transaction(
         merchant,
         api_client,
@@ -99,6 +89,7 @@ class Transaction(models.Model):
         preferred_provider=None,
         final_provider=None,
         latency=None,
+        payment_link=None,
         metadata=None,
     ):
         """
@@ -111,21 +102,78 @@ class Transaction(models.Model):
             api_client=api_client,
             amount=amount,
             reference=reference,
+            currency=currency,
+            transaction_type=transaction_type or TRANSACTION_TYPE.COLLECTION,
+            message="Transaction initialized",
+        )
+
+        collection_transaction = CollectionTransaction.objects.create(
+            transaction=transaction,
+            amount=amount,
+            reference=reference,
             customer_email=customer_email,
             customer_phone=customer_phone,
             currency=currency,
             channel=channel,
-            transaction_type=transaction_type or TRANSACTION_TYPE.COLLECTION,
             transaction_source=transaction_source or TRANSACTION_SOURCE.API,
             preferred_provider=preferred_provider,
             final_provider=final_provider,
             latency=latency,
+            payment_link=payment_link,
             metadata=metadata or {},
-            message="Transaction initialized",
         )
 
         return transaction
     
+
+class CollectionTransaction(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    transaction = models.OneToOneField(
+        Transaction,
+        on_delete=models.CASCADE,
+        related_name="collection"
+    )
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
+    currency = models.CharField(max_length=10, default="NGN")
+    customer_email = models.EmailField(blank=True, null=True)
+    customer_phone = models.CharField(max_length=20, blank=True, null=True)
+
+    channel = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text="card, bank_transfer, ussd"
+    )
+
+    transaction_source = models.CharField(
+        max_length=20,
+        choices=TRANSACTION_SOURCE.choices,
+        default=TRANSACTION_SOURCE.API
+    )
+
+    preferred_provider = models.CharField(max_length=50, blank=True, null=True)
+    final_provider = models.CharField(max_length=50, blank=True, null=True)
+    provider_reference = models.CharField(max_length=100, blank=True, null=True)
+    payment_link = models.URLField(blank=True, null=True)
+    reference = models.CharField(max_length=100, null=True, blank=True)
+    metadata = models.JSONField(default=dict, blank=True)
+
+    latency = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    completed_at = models.DateTimeField(blank=True, null=True)
+
+    
+    def __str__(self):
+        return f"Collection -> {self.transaction.transaction_id}"
+
+
 
 class TransactionAttempt(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -161,3 +209,7 @@ class TransactionAttempt(models.Model):
         )
 
         return attempt
+
+
+    
+

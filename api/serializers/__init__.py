@@ -5,6 +5,7 @@ All payment serializers for the APIs service
 
 from .payment import PaymentRequestSerializer
 from .mobile_topup import MobileTopupSerializer
+from .bill_payment import BillPaymentSerializer
 from .client import (
     APIClientSerializer, 
     ClientProviderSerializer, 
@@ -16,6 +17,7 @@ from .client import (
 __all__ = [
     "PaymentRequestSerializer",
     "MobileTopupSerializer",
+    "BillPaymentSerializer",
     "APIClientSerializer",
     "ClientProviderSerializer",
     "ClientProviderCredentialSerializer",

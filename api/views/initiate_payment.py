@@ -117,6 +117,7 @@ class ProcessPaymentAPIView(APIView):
 
             cleaned = payment_response.get("cleaned_data", {})
             reference = cleaned.get("reference")
+            payment_link = cleaned.get("payment_url")
             
             transaction = Transaction.create_transaction(
                 merchant=merchant,
@@ -128,6 +129,7 @@ class ProcessPaymentAPIView(APIView):
                 preferred_provider=provider,
                 final_provider=provider,
                 latency=latency,
+                payment_link=payment_link,
                 metadata={"payment_response": payment_response},
             )
 

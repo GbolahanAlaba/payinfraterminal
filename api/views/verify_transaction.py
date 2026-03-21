@@ -31,12 +31,15 @@ class VerifyTransactionView(APIView):
 
         metadata = response.get("data", {})
         status = metadata.get("status")
+        reference = metadata.get("reference")
         authorization = metadata.get("authorization")
         channel = authorization.get("channel")
         message = response.get("message", "")
 
         if status in [True, "success", "successful"]:
             provider_status = "success"
+        elif status in ["abandoned",]:
+            provider_status = "abandoned"
         elif status in [False, "failed"]:
             provider_status = "failed"
         else:
@@ -44,6 +47,7 @@ class VerifyTransactionView(APIView):
 
         return {
             "provider_status": provider_status,
+            "reference": reference,
             "channel": channel,
             "metadata": metadata,
             "message": message,
@@ -125,19 +129,20 @@ class VerifyTransactionView(APIView):
             engine = PaymentRouteEngine(client=api_client)
 
             credentials = engine.get_provider_credentials(
-                tx.preferred_provider
+                tx.collection.preferred_provider
             )
 
-            if tx.preferred_provider == "paystack":
+            if tx.collection.preferred_provider == "paystack":
                 paystack_data = self.__paystack__(tx.reference, credentials, environment)
 
                 metadata = paystack_data["metadata"]
                 provider_status = paystack_data["provider_status"]
+                reference = paystack_data["reference"]
                 channel = paystack_data["channel"]
                 message = paystack_data["message"]
                 response = paystack_data["response"]
 
-            if tx.preferred_provider == "flutterwave":
+            if tx.collection.preferred_provider == "flutterwave":
                 flutterwave_data = self.__flutterwave__(tx.reference, credentials, environment)
 
                 metadata = flutterwave_data["metadata"]
@@ -146,7 +151,7 @@ class VerifyTransactionView(APIView):
                 message = flutterwave_data["message"]
                 response = flutterwave_data["response"]
             
-            if tx.preferred_provider == "nomba":
+            if tx.collection.preferred_provider == "nomba":
                 nomba_data = self.__nomba__(tx.reference, credentials, environment)
 
                 metadata = nomba_data["metadata"]
@@ -159,21 +164,37 @@ class VerifyTransactionView(APIView):
 
                 if provider_status == "success":
                     tx.status = STATUS.SUCCESS
-                    tx.channel = channel
                     tx.metadata = metadata
                     tx.completed_at = timezone.now()
+                    tx.collection.reference = reference
+                    tx.collection.channel = channel
+                    tx.collection.metadata = metadata
+                    
 
                 elif provider_status in ["failed", "abandoned"]:
                     tx.status = STATUS.FAILED
                     tx.completed_at = timezone.now()
+                    tx.collection.reference = reference
+                    tx.collection.metadata = metadata
+                    tx.collection.completed_at = timezone.now()
+                    print(timezone.now())
+                    tx.collection.updated_at = timezone.now()
+                    
 
                 tx.message = message
 
                 tx.save(update_fields=[
                     "status",
-                    "channel",
                     "metadata",
                     "message",
+                    "completed_at",
+                    "updated_at"
+                ])
+
+                tx.collection.save(update_fields=[
+                    "reference",
+                    "channel",
+                    "metadata",
                     "completed_at",
                     "updated_at"
                 ])
